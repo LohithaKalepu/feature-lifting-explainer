@@ -1,0 +1,136 @@
+{
+  "dataset": {
+    "id": "chapter-5-spirals",
+    "observationCount": 144,
+    "inputSha256": "bc2e6b0553c39fbf68cf7a151a98f183a3412da61a63dc9ccf62d724af275f26"
+  },
+  "solver": {
+    "library": "SciPy",
+    "version": "1.17.1",
+    "method": "highs",
+    "primalFeasibilityTolerance": 1e-09,
+    "dualFeasibilityTolerance": 1e-09,
+    "validationTolerance": 1e-08,
+    "requiredMargin": 1
+  },
+  "controls": [
+    {
+      "id": "separable-2d",
+      "dimension": 2,
+      "coefficientOrder": [
+        "w1",
+        "w2",
+        "b"
+      ],
+      "statusCode": 0,
+      "statusMessage": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "outcome": "feasible",
+      "coefficients": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "minimumMargin": 1.0
+    },
+    {
+      "id": "xor-2d",
+      "dimension": 2,
+      "coefficientOrder": [
+        "w1",
+        "w2",
+        "b"
+      ],
+      "statusCode": 2,
+      "statusMessage": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is Infeasible)",
+      "outcome": "infeasible",
+      "coefficients": null,
+      "minimumMargin": null
+    },
+    {
+      "id": "xor-interaction",
+      "dimension": 3,
+      "coefficientOrder": [
+        "w1",
+        "w2",
+        "w3",
+        "b"
+      ],
+      "statusCode": 0,
+      "statusMessage": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "outcome": "feasible",
+      "coefficients": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "minimumMargin": 1.0
+    }
+  ],
+  "original2d": {
+    "dimension": 2,
+    "coefficientOrder": [
+      "w1",
+      "w2",
+      "b"
+    ],
+    "statusCode": 2,
+    "statusMessage": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is Infeasible)",
+    "outcome": "infeasible",
+    "coefficients": null,
+    "minimumMargin": null
+  },
+  "transformations": [
+    {
+      "id": "linear",
+      "label": "Linear",
+      "expression": "z = x\u2081 + x\u2082",
+      "dimension": 3,
+      "coefficientOrder": [
+        "w1",
+        "w2",
+        "w3",
+        "b"
+      ],
+      "statusCode": 2,
+      "statusMessage": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is Infeasible)",
+      "outcome": "infeasible",
+      "coefficients": null,
+      "minimumMargin": null
+    },
+    {
+      "id": "interaction",
+      "label": "Interaction",
+      "expression": "z = x\u2081 * x\u2082",
+      "dimension": 3,
+      "coefficientOrder": [
+        "w1",
+        "w2",
+        "w3",
+        "b"
+      ],
+      "statusCode": 2,
+      "statusMessage": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is Infeasible)",
+      "outcome": "infeasible",
+      "coefficients": null,
+      "minimumMargin": null
+    },
+    {
+      "id": "radial",
+      "label": "Radial quadratic",
+      "expression": "z = x\u2081\u00b2 + x\u2082\u00b2",
+      "dimension": 3,
+      "coefficientOrder": [
+        "w1",
+        "w2",
+        "w3",
+        "b"
+      ],
+      "statusCode": 2,
+      "statusMessage": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is Infeasible)",
+      "outcome": "infeasible",
+      "coefficients": null,
+      "minimumMargin": null
+    }
+  ]
+}
