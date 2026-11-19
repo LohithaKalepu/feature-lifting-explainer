@@ -157,3 +157,24 @@ node scripts/export_spiral_audit.ts | python scripts/audit_spiral_feasibility.py
 - Added a short bridge ahead of the interactive plots. The scalar example distinguishes the original value from its square, and the coordinate example uses the existing radial transformation to compute the lifted representation of (1, 2).
 - The diagram uses HTML labels and a decorative SVG arrow, with a stacked layout below 560px. It introduces the mapping before learners see the 3D activity. No new WebGL scene or dependencies were added.
 - Safari confirmed the example values, desktop diagram, and ordering before the plots. Selecting Radial quadratic and scrubbing to 50% still worked. The stacked diagram and full 3D playback were not visually verified. All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Chapter 3 narrative restructuring
+
+- Reordered the chapter into four continuous scenes: the interactive classifier, the plane–surface intersection, the water analogy, and the linear decision rule. Removed the duplicated intersection panel and replaced the water analogy's Previous and Next steps with three short passages.
+- The water passage now introduces the square-root relationship with heights 1 and 4, reports the live radius, and explains the zero and negative cases. The general weighted decision function appears after the geometry and begins with the above-or-below classification rule.
+- The plane and water sliders still update the same Chapter 3 height. Safari confirmed the scene order and that changing the water height from 0.40 to 3.25 updated both sliders and the radius to 1.803. The Top View button accepted input, but the WebGL geometry was not visible in the capture, so its camera orientation was not visually verified.
+- All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Chapter 3 visualization refinement
+
+- Aligned the classifier plot headings and kept both square plots side by side on desktop. The water analogy now has one larger 3D bowl with camera controls underneath and the water slider and live radius beside it. The classifier's existing 2D boundary remains the projection reference. Both layouts stack on narrow screens.
+- Chapter 3 uses a higher oblique camera angle. The water presets stay orthographic, with separate framing extents for the overhead, side, and oblique views. All three axes retain equal units. The feature mesh still uses the existing square sampling domain, so its outer corners extend above the sides.
+- Increased the Chapter 3 bowl opacity and rim width and made the blue water disk more distinct. The shared height and mathematical intersection calculations are unchanged.
+- Safari displayed the bowl, blue disk, purple rim, and the matching radius of 1.803 at height 3.25. The Side View control accepted input, but the subsequent frame still showed the oblique pose, so the complete preset sequence and mobile layout were not visually verified. All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Tilt Challenge layout refinement
+
+- Bounded the workspace width relative to viewport height so the two square plots and parameter controls can fit together on desktop. The plot headings align, and the plots stack on narrow screens. The existing square coordinate scale and camera settings are unchanged.
+- Placed the height slider and tilt unlock directly under the plots. After unlocking, the same strip holds the three labeled sliders. Accuracy and circle geometry appear together before the explanation. Reset Camera remains with the 3D view.
+- Safari confirmed the height-only stage, the unlock action, the aligned horizontal slider strip, and the visible 2D boundary and 3D scene. Coordinate pointer input failed during the nonzero tilt check, so slider-driven changes and camera rotation were not visually reverified.
+- All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.

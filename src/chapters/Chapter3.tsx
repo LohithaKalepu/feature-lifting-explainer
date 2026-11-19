@@ -21,9 +21,9 @@ export function Chapter3() {
 
   return <section id="chapter-3" aria-labelledby="linear-model-heading">
     <p className="eyebrow">Chapter 3 — The Linear Model</p>
-    <h2 id="linear-model-heading">How can a flat plane create a curved boundary?</h2>
-    <p>We’ll use the same concentric observations with the radial quadratic feature z = x₁² + x₂². It gives points farther from the origin a greater height, so a horizontal plane can separate the inner class from the outer ring.</p>
-    <div className="dataset-views">
+    <h2 id="linear-model-heading">We lifted our data into a new feature space. But how can a linear classifier use it?</h2>
+    <p>In Chapter 2, we saw that the transformation z = x₁² + x₂² lifts points farther from the origin higher than those near the center. Now we can place a flat plane between the two classes.</p>
+    <div className="dataset-views chapter-three-comparison">
       <section>
         <h3>Original 2D dataset</h3>
         <ScatterPlot2D points={concentricDataset} circularRadius={boundaryRadius ?? undefined} />
@@ -31,7 +31,7 @@ export function Chapter3() {
       <section>
         <h3>Lifted dataset and separating plane</h3>
         <ScatterPlot3D points={points} surface={surface} radius={radius} planeHeight={height}
-          minimumPlaneHeight={minimumHeight} intersection={intersection.points} />
+          minimumPlaneHeight={minimumHeight} intersection={intersection.points} bowlView />
       </section>
     </div>
     <fieldset className="lifting-controls">
@@ -41,50 +41,35 @@ export function Chapter3() {
         onChange={event => setHeight(event.target.valueAsNumber)} />
       <p aria-live="polite">Classification accuracy <strong>{(accuracy * 100).toFixed(1)}%</strong>
         {' '}({correct} of {total} correctly classified)</p>
-      <p>Points at or above the purple plane (z ≥ c) are predicted as Class 1 (outer). Points below it (z &lt; c) are predicted as Class 0 (inner).</p>
+      <p>Adjust the plane height and watch how the classification accuracy changes.</p>
     </fieldset>
-    <IntersectionExplanation height={height} boundaryRadius={boundaryRadius} />
-    <section className="explanation" aria-labelledby="plane-math-heading">
-      <h3 id="plane-math-heading">The linear decision function</h3>
-      <p>Feature transformation φ(x) = (x₁, x₂, x₁² + x₂²)</p>
-      <p>Decision function f(x) = wᵀφ(x) + b</p>
-      <p>For the horizontal plane, w = (0, 0, 1) and b = −c.</p>
-      <p>Therefore, f(x) = x₁² + x₂² − c.</p>
-      <p>The classifier is linear in the transformed features because its decision function is a weighted sum of those features. The nonlinear terms arise from the feature mapping, not from a nonlinear classifier in feature space.</p>
+    <section className="explanation" aria-labelledby="intersection-heading">
+      <h3 id="intersection-heading">How Does a Flat Plane Create a Circle?</h3>
+      <p>The separating plane is flat. So why does the decision boundary look curved in the original 2D space?</p>
+      <p>The horizontal plane cuts through the curved feature surface. Where the two surfaces meet, they form a circle. When we look at that intersection in the original 2D space, we see a circular decision boundary.</p>
+      <p>Feature surface <strong>z = x₁² + x₂²</strong></p>
+      <p>Separating plane <strong>z = c</strong></p>
+      <p>At the intersection <strong>x₁² + x₂² = c</strong></p>
     </section>
-    <p className="chapter-handoff">Here's another way to see it.</p>
-    <section aria-labelledby="water-analogy-heading">
-      <h3 id="water-analogy-heading">Water-Level Analogy</h3>
-      <WaterLevelAnalogy intersection={intersection} surface={surface} plotRadius={radius} minimumHeight={minimumHeight} />
-      <fieldset className="lifting-controls">
-        <legend>Water level</legend>
-        <label htmlFor="water-height">Water height <strong>c = {height.toFixed(2)}</strong></label>
-        <input id="water-height" type="range" min={minimumHeight} max={7} step={0.01} value={height}
-          onChange={event => setHeight(event.target.valueAsNumber)} />
-      </fieldset>
-      <IntersectionExplanation height={height} boundaryRadius={boundaryRadius} water />
+    <p className="chapter-handoff">Imagine the same intersection as the rim of a pool of water.</p>
+    <WaterLevelAnalogy intersection={intersection} surface={surface} plotRadius={radius}
+      minimumHeight={minimumHeight} onHeightChange={setHeight} />
+    <section className="explanation" aria-labelledby="plane-math-heading">
+      <h3 id="plane-math-heading">Why Is the Classifier Still Linear?</h3>
+      <h4>Above or Below the Plane?</h4>
+      <p>The classifier only needs to determine whether a transformed point lies above or below the horizontal plane.</p>
+      <ul>
+        <li>z ≥ c → Class 1 (outer)</li>
+        <li>z &lt; c → Class 0 (inner)</li>
+      </ul>
+      <h4>Substitute the Feature Transformation</h4>
+      <p>Since z = x₁² + x₂², the rule becomes <strong>x₁² + x₂² − c ≥ 0 → Class 1</strong>. The squared terms give the boundary its curved shape in the original coordinates. The separating rule is still linear in the transformed coordinate z.</p>
+      <h4>General Linear Decision Function</h4>
+      <p><strong>f(x) = wᵀφ(x) + b</strong></p>
+      <p>Here x is the original input, φ(x) is the transformed feature vector, w contains the classifier weights, and b is the bias.</p>
+      <p>In this example, φ(x) = (x₁, x₂, x₁² + x₂²), w = (0, 0, 1), and b = −c. Substituting gives <strong>f(x) = x₁² + x₂² − c</strong>.</p>
+      <p>The classifier remains linear in the transformed feature space. The nonlinear boundary comes from the transformation of the inputs.</p>
     </section>
     <p className="chapter-handoff">Now that you've seen how a flat plane creates a curved boundary, can you apply the idea yourself?</p>
-  </section>
-}
-
-function IntersectionExplanation({ height, boundaryRadius, water = false }: {
-  height: number
-  boundaryRadius: number | null
-  water?: boolean
-}) {
-  const headingId = water ? 'water-intersection-heading' : 'intersection-heading'
-  return <section className="explanation" aria-labelledby={headingId}>
-    <h3 id={headingId}>From a plane to a circle</h3>
-    <p>{water ? 'Bowl surface' : 'Feature surface'} <strong>z = x₁² + x₂²</strong></p>
-    <p>{water ? 'Water surface' : 'Separating plane'} <strong>z = c = {height.toFixed(2)}</strong></p>
-    <p>Intersection equation <strong>x₁² + x₂² = {height.toFixed(2)}</strong></p>
-    {boundaryRadius === null
-      ? <p>{water ? 'The water level' : 'The plane'} is below the paraboloid, so there is no real intersection or 2D boundary.</p>
-      : boundaryRadius === 0
-        ? <p>At c = 0, the intersection and its projection are a single point at the origin (r = 0).</p>
-        : <p>At {water ? 'water' : 'plane'} height c = {height.toFixed(2)}, the projected decision boundary is a circle with radius
-          {' '}<strong>r = √c ≈ {boundaryRadius.toFixed(3)}</strong>.</p>}
-    <p>Although the separating plane is flat in the transformed feature space, its intersection with the curved feature surface produces a circular decision boundary in the original 2D space.</p>
   </section>
 }

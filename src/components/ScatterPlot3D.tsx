@@ -19,6 +19,8 @@ const fieldOfView = 44
 const markerSize: [number, number, number] = [0.065, 12, 8]
 const viewDirection = new Vector3(5, 7, 7).normalize()
 
+const bowlViewDirection = new Vector3(4, 12, 8).normalize()
+
 const cameraPresets = {
   Perspective: viewDirection,
   'Top View': new Vector3(0, 1, 0),
@@ -33,9 +35,10 @@ interface CameraSnapshot {
   preset?: { view: CameraPreset }
 }
 
-function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera }: {
+function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlView }: {
   controls: OrbitControlsRef
   savedCamera: MutableRefObject<CameraSnapshot | undefined>
+  bowlView: boolean
   radius: number
   minZ: number
   maxZ: number
@@ -50,9 +53,22 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera }: {
   // same geometry in view at the default zoom.
   const distance = 1.08 * boundingRadius / Math.sin(MathUtils.degToRad(fieldOfView / 2))
 
-  const orthographic = camera instanceof OrthographicCamera
-  const zoom = orthographic
-    ? viewportHeight / (2.18 * (preset?.view === 'Top View' ? radius : boundingRadius))
+  const direction = bowlView && (!preset || preset.view === 'Perspective')
+    ? bowlViewDirection
+    : preset ? cameraPresets[preset.view] : viewDirection
+  let viewRadius = boundingRadius
+  if (preset?.view === 'Top View') {
+    viewRadius = radius
+  } else if (bowlView && preset?.view === 'Side View') {
+    viewRadius = Math.max(radius, halfHeight)
+  } else if (bowlView && preset?.view === 'Perspective') {
+    const horizontalExtent = radius * Math.SQRT2
+    const verticalExtent = halfHeight * Math.hypot(direction.x, direction.z) + horizontalExtent * direction.y
+    viewRadius = Math.max(horizontalExtent, verticalExtent)
+  }
+
+  const zoom = camera instanceof OrthographicCamera
+    ? Math.max(1, viewportHeight) / ((bowlView ? 2.24 : 2.18) * viewRadius)
     : 1
   const framing = `${radius}:${minZ}:${maxZ}:${zoom}`
 
@@ -62,7 +78,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera }: {
 
     const previous = savedCamera.current
     orbit.target.set(...toWorldPosition({ x1: 0, x2: 0, z: minZ + halfHeight }))
-    camera.position.copy(orbit.target).addScaledVector(preset ? cameraPresets[preset.view] : viewDirection, distance)
+    camera.position.copy(orbit.target).addScaledVector(direction, distance)
     if (camera instanceof OrthographicCamera) {
       camera.zoom = zoom
       camera.updateProjectionMatrix()
@@ -81,7 +97,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera }: {
     return () => {
       savedCamera.current = { position: camera.position.clone(), zoom: camera.zoom, framing, preset }
     }
-  }, [camera, controls, distance, framing, halfHeight, invalidate, minZ, preset, savedCamera, zoom])
+  }, [camera, controls, direction, distance, framing, halfHeight, invalidate, minZ, preset, savedCamera, zoom])
 
   return <OrbitControls
     ref={controls}
@@ -94,7 +110,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera }: {
   />
 }
 
-export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selectedId, onSelect, tiltedPlane, planeHeight, minimumPlaneHeight, maximumPlaneHeight, intersection, water, showCameraPresets = false }: {
+export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selectedId, onSelect, tiltedPlane, planeHeight, minimumPlaneHeight, maximumPlaneHeight, intersection, water, showCameraPresets = false, bowlView = false }: {
   points: readonly DataPoint3D[]
   radius?: number
   surface?: FeatureSurfaceData
@@ -105,6 +121,7 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
   intersection?: readonly Coordinates3D[]
   water?: { height: number; radius: number | null }
   showCameraPresets?: boolean
+  bowlView?: boolean
   progress?: number
   selectedId?: string
   onSelect?: (id: string) => void
@@ -141,12 +158,12 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
         <ambientLight intensity={1.1} />
         <directionalLight position={[4, 8, 3]} intensity={2.1} />
         <CoordinateAxes3D radius={radius} minZ={minZ} maxZ={maxZ} />
-        {surface && <FeatureSurface3D surface={surface} progress={progress} />}
+        {surface && <FeatureSurface3D surface={surface} progress={progress} opacity={bowlView ? 0.43 : undefined} />}
         {planeHeight !== undefined && <SeparatingPlane3D height={planeHeight} radius={radius} />}
         {tiltedPlane && <TiltedPlane3D plane={tiltedPlane} radius={radius} />}
         {water && water.radius !== null && water.radius > 0 &&
           <WaterSurface3D height={water.height} radius={water.radius} />}
-        {intersection && <IntersectionCurve3D points={intersection} />}
+        {intersection && <IntersectionCurve3D points={intersection} lineWidth={bowlView ? 3.25 : undefined} />}
         {points.map(point => {
           const selected = point.id === selectedId
           return <group key={point.id} position={toWorldPosition(observationAtProgress(point, progress))}>
@@ -166,7 +183,7 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
           </group>
         })}
         <PlotCamera controls={controls} savedCamera={savedCamera} radius={radius} minZ={minZ} maxZ={maxZ}
-          preset={showCameraPresets ? preset : undefined} />
+          preset={showCameraPresets ? preset : undefined} bowlView={bowlView} />
       </Canvas>}
     </div>
     {showCameraPresets && <div className="camera-actions" role="group" aria-label="Camera presets">

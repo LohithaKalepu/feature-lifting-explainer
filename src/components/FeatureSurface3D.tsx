@@ -4,7 +4,7 @@ import { BufferGeometry, DoubleSide, Float32BufferAttribute } from 'three'
 import { toWorldPosition } from '../math/coordinates3D'
 import { displayedHeight, type FeatureSurfaceData } from '../math/featureTransforms'
 
-export function FeatureSurface3D({ surface, progress }: { surface: FeatureSurfaceData; progress: number }) {
+export function FeatureSurface3D({ surface, progress, opacity = 0.36 }: { surface: FeatureSurfaceData; progress: number; opacity?: number }) {
   const geometry = useMemo(() => {
     const meshGeometry = new BufferGeometry()
     meshGeometry.setAttribute('position', new Float32BufferAttribute(surface.vertices.flatMap(toWorldPosition), 3))
@@ -24,6 +24,6 @@ export function FeatureSurface3D({ surface, progress }: { surface: FeatureSurfac
 
   return <mesh>
     <primitive object={geometry} attach="geometry" />
-    <meshLambertMaterial color={plotColors.surface} side={DoubleSide} transparent opacity={0.36} depthWrite={false} />
+    <meshLambertMaterial color={plotColors.surface} side={DoubleSide} transparent opacity={opacity} depthWrite={false} />
   </mesh>
 }

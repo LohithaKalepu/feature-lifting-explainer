@@ -7,6 +7,6 @@ export function WaterSurface3D({ height, radius }: { height: number; radius: num
   return <mesh position={horizontalPlanePosition(height)} rotation={[-Math.PI / 2, 0, 0]}
     scale={[radius, radius, 1]} renderOrder={1}>
     <circleGeometry args={[1, radialIntersectionSegments]} />
-    <meshBasicMaterial color={plotColors.water} side={DoubleSide} transparent opacity={0.48} depthWrite={false} />
+    <meshBasicMaterial color={plotColors.water} side={DoubleSide} transparent opacity={0.60} depthWrite={false} />
   </mesh>
 }

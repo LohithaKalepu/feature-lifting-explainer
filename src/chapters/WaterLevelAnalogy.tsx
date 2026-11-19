@@ -1,44 +1,48 @@
-import { useState } from 'react'
-import { ScatterPlot2D } from '../components/ScatterPlot2D'
 import { ScatterPlot3D } from '../components/ScatterPlot3D'
-import { concentricDataset } from '../data/datasets'
 import type { FeatureSurfaceData } from '../math/featureTransforms'
 import type { radialIntersectionAtHeight } from '../math/radialIntersection'
 
-const stages = [
-  { title: 'The Bowl', text: 'The curved surface represents our transformed feature space, where z = x₁² + x₂².' },
-  { title: 'The Water Level', text: 'The water surface is horizontal. Its height corresponds to the position of a linear separating plane.' },
-  { title: 'The Intersection', text: 'Where the flat water surface meets the curved bowl, it forms a circle. This is the nonlinear decision boundary seen in the original 2D space.' },
-]
-
-export function WaterLevelAnalogy({ intersection, surface, plotRadius, minimumHeight }: {
+export function WaterLevelAnalogy({ intersection, surface, plotRadius, minimumHeight, onHeightChange }: {
   intersection: ReturnType<typeof radialIntersectionAtHeight>
   surface: FeatureSurfaceData
   plotRadius: number
   minimumHeight: number
+  onHeightChange: (height: number) => void
 }) {
-  const [step, setStep] = useState(0)
-  const { radius, points } = intersection
+  const { height, radius, points } = intersection
 
-  return <>
-    <div className="dataset-views">
-      <section>
-        <h3>Original 2D projection</h3>
-        <ScatterPlot2D points={concentricDataset} circularRadius={radius ?? undefined} />
-      </section>
-      <section>
-        <h3>Paraboloid and water level</h3>
+  return <section aria-labelledby="water-analogy-heading">
+    <h3 id="water-analogy-heading">Think of It as Filling a Bowl</h3>
+    <h4>Imagine a Bowl</h4>
+    <p>Imagine the curved feature surface as a bowl. Points near the origin lie near the bottom, while points farther from the origin sit higher along its sides.</p>
+    <div className="chapter-three-water-workspace">
+      <div>
+        <h4>Paraboloid and water level</h4>
         <ScatterPlot3D points={[]} surface={surface} radius={plotRadius} water={intersection}
-          intersection={points} showCameraPresets minimumPlaneHeight={minimumHeight} />
-      </section>
-    </div>
-    <section className="explanation" aria-labelledby="water-stage">
-      <h3 id="water-stage">Step {step + 1} — {stages[step].title}</h3>
-      <p>{stages[step].text}</p>
-      <div className="lifting-buttons">
-        <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}>Previous</button>
-        <button type="button" disabled={step === stages.length - 1} onClick={() => setStep(step + 1)}>Next</button>
+          intersection={points} showCameraPresets minimumPlaneHeight={minimumHeight} bowlView />
       </div>
+      <fieldset className="lifting-controls">
+        <legend>Raise the Water Level</legend>
+        <p>Now imagine filling the bowl with water. The water surface stays flat, even though the bowl is curved.</p>
+        <label htmlFor="water-height">Water height <strong>c = {height.toFixed(2)}</strong></label>
+        <input id="water-height" type="range" min={minimumHeight} max={7} step={0.01} value={height}
+          onChange={event => onHeightChange(event.target.valueAsNumber)} />
+        <p aria-live="polite">Circle radius <strong>{radius === null
+          ? 'No real radius'
+          : `r = √c ≈ ${radius.toFixed(3)}`}</strong></p>
+        <p className="hint">Higher water level → larger intersection circle.</p>
+      </fieldset>
+    </div>
+    <section className="explanation" aria-labelledby="water-circle-heading">
+      <h4 id="water-circle-heading">Watch the Circle Grow</h4>
+      <p>The water touches the bowl along a circle. As the water level rises, the circle expands because the bowl becomes wider at greater heights.</p>
+      <p>The squared radius is <strong>r² = c</strong>, so <strong>r = √c</strong> for c ≥ 0.</p>
+      <p>When c = 1, r = 1. When c = 4, r = 2. The radius grows with the square root of the height.</p>
+      {radius === null
+        ? <p aria-live="polite">At c = {height.toFixed(2)}, the level is below the bowl and there is no real intersection.</p>
+        : radius === 0
+          ? <p aria-live="polite">At c = 0, the intersection is a single point at the origin.</p>
+          : <p aria-live="polite">At c = {height.toFixed(2)}, the radius is approximately {radius.toFixed(3)}.</p>}
     </section>
-  </>
+  </section>
 }
