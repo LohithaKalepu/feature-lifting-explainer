@@ -118,3 +118,42 @@ node scripts/export_spiral_audit.ts | python scripts/audit_spiral_feasibility.py
 - The tilt exercise owns its plane coefficients. XOR and the spiral challenge each own their dataset, feature, plane height, and feedback. Switching features in either challenge now preserves the height, using a single slider range per dataset that covers all three features. The 3D framing includes that range so sliding the plane does not reframe the camera.
 - App continues to own progression and active navigation. Unlocked sections stay mounted. Only offscreen WebGL canvases are suspended, with the existing per-plot camera snapshots retained for matching framing and presets.
 - Safari confirmed the Chapter 2 transformation and selected point survived navigation, both Chapter 3 sliders reported the same changed height, and changing the XOR mapping preserved its nonzero height while the spiral and Chapter 3 settings stayed independent. Safari exposed the unlocked tilt controls but did not register a nonzero tilt adjustment in this check. All 67 tests passed and the production build passed with the existing bundle-size warning.
+
+## Dark editorial redesign, Phase 1
+
+- Began on a clean `design/editorial-dark` branch. Updated `src/styles/global.css` with navy page and raised surfaces, high-contrast text, shared control states, a restrained sticky progress bar, and equation/table styling. Typography uses Georgia headings, system sans-serif for text and controls, and system monospace for plot labels.
+- Centralized visualization colors in `src/components/classColors.ts` and exposed shared colors to CSS through `App.tsx`. Both plots use lighter blue for Class 0, orange for Class 1, and lavender for boundaries. Updated the 2D grid and selection outline, the 3D canvas background and axes, and existing surface, plane, and water materials. The shared challenge uses a teal success message with the existing text feedback.
+- All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff whitespace check passed. Safari screenshots confirmed the theme, navigation contrast, and 2D plot styling in Chapters 1 and 2. Safari showed the 3D background and axis labels with no visible scene geometry in the capture, consistent with prior automation captures. Full 3D contrast, Chapters 3–5 visually, and narrow-screen rendering were not verified in this browser check.
+
+## Light editorial redesign
+
+- Updated the prior uncommitted design work on `design/editorial-dark`. The light theme changes `src/styles/global.css` and the shared SVG and WebGL palette in `src/components/classColors.ts`.
+- Used warm paper (#FAF9F6), white plots, pale blue-gray control surfaces, slate text, and soft dividers. The shared plot colors use blue (#397AB9), orange (#C47740), and purple (#8258AC), with contrast ratios of 4.51:1, 3.47:1, and 5.33:1 against white. Main and secondary text achieve 13.94:1 and 5.99:1 against the page background.
+- Retained Georgia, system sans-serif, and monospace plot labels. Increased the desktop maximum width to 1440px and used a 5:3 plot-to-controls split in Chapter 1. Linked plots remain two-column on wide screens and stack below 700px. Replaced the fieldset boxes with simple dividers.
+- All 67 tests and the production build passed, with the existing bundle-size warning. Safari screenshots confirmed the light presentation in all five chapters and the compact navigation and single-column Chapter 1 layout at increased browser zoom. Safari verified the Chapter 1 and XOR progression controls. The 3D areas remained blank in those captures, so visual contrast of rendered WebGL geometry was not verified.
+
+## Chapter 1 storytelling redesign
+
+- Added an editorial opening, a Begin Exploring anchor, and a larger challenge plot with both sliders and Reset immediately below it. The instructions and live score sit alongside the plot on desktop, and the layout stacks on narrow screens.
+- A slider change enables Continue Exploring. That action reveals the discovery and requests a post-render focus and scroll. Let's Add Another Dimension separately unlocks Chapter 2 and continues the story. Chapter 1 keeps its existing dataset, classifier, boundary values, and session progression.
+- The discovery starts at partial opacity and uses a short entrance transition, which is skipped for reduced motion. Safari initially captured an empty discovery area when the entrance started at zero opacity, so the starting opacity was raised to keep the content visible.
+- Safari verified the opening anchor, both line sliders, a score change from 50% to 55%, the discovery reveal, the Chapter 2 unlock, and returning to the adjusted Chapter 1 rotation. All 68 tests passed, the production build passed with the existing bundle-size warning, and the diff whitespace check passed.
+
+## Chapter 1 layout and navigation refinement
+
+- Removed the five-chapter bar and its scroll observer. Narrative actions still unlock and scroll to the same destinations. Begin Exploring now targets the entire challenge workspace, with a smaller scroll offset because there is no sticky bar.
+- Aligned the Chapter 1 label with the top of the plotting area, used a 60/40 desktop grid, and bounded the SVG size relative to viewport height. The square viewBox and coordinate mapping are unchanged. The two numerical sliders and Reset remain in one strip under the plot. The workspace stacks at narrow widths.
+- All 68 tests passed, the production build passed with the existing bundle-size warning, and the diff whitespace check passed. Safari confirmed the bar was gone, the plot and controls fit together in the desktop capture, the narrow layout stacked, and rotation and Reset changed the control values. Safari pointer automation failed when trying to set a nonzero position, so a live accuracy change was not reproduced in this pass.
+
+## Chapter 1 natural scroll flow
+
+- Removed the Chapter 1 reveal and Continue actions. The line explanation and new feature question now follow the challenge in the initial document, with no reveal animation or scroll triggered by a slider.
+- Chapters 1–4 are available from the start because the former Chapter 1 checkpoint unlocked Chapters 2–4 together. The existing XOR checkpoint still unlocks Chapter 5, and the spiral checkpoint still controls the conclusion.
+- Updated progression tests to verify the order of the hero, challenge, explanation, transition, and Chapter 2 in initial markup. All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+- Safari confirmed normal scrolling from the untouched challenge through the explanation into Chapter 2. Returning to the challenge and moving the rotation slider still worked.
+
+## Chapter 2 conceptual introduction
+
+- Added a short bridge ahead of the interactive plots. The scalar example distinguishes the original value from its square, and the coordinate example uses the existing radial transformation to compute the lifted representation of (1, 2).
+- The diagram uses HTML labels and a decorative SVG arrow, with a stacked layout below 560px. It introduces the mapping before learners see the 3D activity. No new WebGL scene or dependencies were added.
+- Safari confirmed the example values, desktop diagram, and ordering before the plots. Selecting Radial quadratic and scrubbing to 50% still worked. The stacked diagram and full 3D playback were not visually verified. All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.

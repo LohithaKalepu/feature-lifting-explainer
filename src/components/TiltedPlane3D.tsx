@@ -1,3 +1,4 @@
+import { intersectionColor } from './classColors'
 import { useLayoutEffect, useRef } from 'react'
 import { DoubleSide, type BufferAttribute } from 'three'
 import { toWorldPosition } from '../math/coordinates3D'
@@ -26,7 +27,7 @@ export function TiltedPlane3D({ plane, radius }: { plane: FeaturePlane; radius: 
     <bufferGeometry>
       <bufferAttribute ref={positions} attach="attributes-position" args={[initialPositions.current, 3]} />
     </bufferGeometry>
-    <meshBasicMaterial color="#8254a6" side={DoubleSide} transparent opacity={0.34}
+    <meshBasicMaterial color={intersectionColor} side={DoubleSide} transparent opacity={0.34}
       depthWrite={false} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
   </mesh>
 }

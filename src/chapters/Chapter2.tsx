@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ScatterPlot2D } from '../components/ScatterPlot2D'
 import { ScatterPlot3D } from '../components/ScatterPlot3D'
 import { concentricDataset } from '../data/datasets'
+import { FeatureLiftingIntroduction } from './FeatureLiftingIntroduction'
 import {
   displayedHeight, featureTransforms, sampleFeatureSurface, transformPoints, type FeatureTransformId,
 } from '../math/featureTransforms'
@@ -59,8 +60,8 @@ export function Chapter2() {
 
   return <section id="chapter-2" tabIndex={-1} aria-labelledby="lifting-heading">
     <p className="eyebrow">Chapter 2 — Feature Lifting</p>
-    <h2 id="lifting-heading">What happens when we give our data another dimension?</h2>
-    <p>In Chapter 1, we discovered that a straight line cannot perfectly separate our two concentric classes. But what if we could represent the same data using an additional feature?</p>
+    <h2 id="lifting-heading">What if we looked at the same data differently?</h2>
+    <FeatureLiftingIntroduction />
     <div className="dataset-views">
       <section>
         <h3>Original 2D dataset</h3>

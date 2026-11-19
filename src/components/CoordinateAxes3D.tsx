@@ -1,3 +1,4 @@
+import { plotColors } from './classColors'
 import { Html, Line } from '@react-three/drei'
 import { toWorldPosition, type Coordinates3D } from '../math/coordinates3D'
 
@@ -9,11 +10,11 @@ export function CoordinateAxes3D({ radius, minZ, maxZ }: { radius: number; minZ:
   ]
 
   return <>
-    <gridHelper args={[2 * radius, 6, '#c8cdd3', '#e1e5e9']} />
+    <gridHelper args={[2 * radius, 6, plotColors.axis, plotColors.grid]} />
     {axes.map(({ label, start, end }) => {
       const endpoint = toWorldPosition(end)
       return <group key={label}>
-        <Line points={[toWorldPosition(start), endpoint]} color="#66717c" />
+        <Line points={[toWorldPosition(start), endpoint]} color={plotColors.axis} />
         <Html position={endpoint} center style={{ pointerEvents: 'none' }}>
           <span className="axis-label-3d">{label}</span>
         </Html>

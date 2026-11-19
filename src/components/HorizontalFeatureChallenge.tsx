@@ -94,7 +94,7 @@ export function HorizontalFeatureChallenge({
           onClick={() => setRevealed(value => !value)}>{revealed ? 'Hide Explanation' : 'Reveal Explanation'}</button>}
       </div>
       <div role="status">
-        {feedback === 'success' && <p>All {total} observations are correctly classified. The plane separates the two classes in this representation.</p>}
+        {feedback === 'success' && <p className="success-feedback">All {total} observations are correctly classified. The plane separates the two classes in this representation.</p>}
         {feedback === 'retry' && <p>{correct} of {total} observations are correct. Try another height or compare a different feature transformation.</p>}
       </div>
     </fieldset>

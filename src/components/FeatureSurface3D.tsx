@@ -1,3 +1,4 @@
+import { plotColors } from './classColors'
 import { useEffect, useLayoutEffect, useMemo } from 'react'
 import { BufferGeometry, DoubleSide, Float32BufferAttribute } from 'three'
 import { toWorldPosition } from '../math/coordinates3D'
@@ -23,6 +24,6 @@ export function FeatureSurface3D({ surface, progress }: { surface: FeatureSurfac
 
   return <mesh>
     <primitive object={geometry} attach="geometry" />
-    <meshLambertMaterial color="#60999b" side={DoubleSide} transparent opacity={0.36} depthWrite={false} />
+    <meshLambertMaterial color={plotColors.surface} side={DoubleSide} transparent opacity={0.36} depthWrite={false} />
   </mesh>
 }

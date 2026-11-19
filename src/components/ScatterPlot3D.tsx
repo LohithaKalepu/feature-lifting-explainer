@@ -4,7 +4,7 @@ import { Canvas, useThree } from '@react-three/fiber'
 import { BackSide, MathUtils, OrthographicCamera, Vector3 } from 'three'
 import { toWorldPosition, type Coordinates3D, type DataPoint3D } from '../math/coordinates3D'
 import { observationAtProgress, type FeatureSurfaceData } from '../math/featureTransforms'
-import { classColors } from './classColors'
+import { classColors, plotColors } from './classColors'
 import { CoordinateAxes3D } from './CoordinateAxes3D'
 import { FeatureSurface3D } from './FeatureSurface3D'
 import { IntersectionCurve3D } from './IntersectionCurve3D'
@@ -137,6 +137,7 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
         camera={showCameraPresets ? undefined : { fov: fieldOfView }}
         fallback={<p>WebGL is required for the interactive 3D view.</p>}
       >
+        <color attach="background" args={[plotColors.background]} />
         <ambientLight intensity={1.1} />
         <directionalLight position={[4, 8, 3]} intensity={2.1} />
         <CoordinateAxes3D radius={radius} minZ={minZ} maxZ={maxZ} />
@@ -160,7 +161,7 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
             </mesh>
             {selected && <mesh renderOrder={1} scale={1.85}>
               <sphereGeometry args={markerSize} />
-              <meshBasicMaterial color="#20252b" side={BackSide} transparent />
+              <meshBasicMaterial color={plotColors.selection} side={BackSide} transparent />
             </mesh>}
           </group>
         })}
