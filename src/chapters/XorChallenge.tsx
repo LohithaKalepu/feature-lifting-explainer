@@ -13,7 +13,7 @@ export function XorChallenge() {
     <section className="explanation" aria-labelledby="xor-explanation-heading">
       <h3 id="xor-explanation-heading">Why Does the Interaction Feature Work?</h3>
       <p>For XOR, the class depends on whether the two original coordinates have the same or opposite signs.</p>
-      <p>With <strong>z = x₁ × x₂</strong>, same-sign coordinates produce positive z, and opposite-sign coordinates produce negative z. A horizontal separating plane at z = 0 distinguishes the two classes.</p>
+      <p>With <span className="lifting-equation equation-accent">z = x₁ × x₂</span>, same-sign coordinates produce positive z, and opposite-sign coordinates produce negative z. A horizontal separating plane at z = 0 distinguishes the two classes.</p>
       <p>The right feature transformation can turn a difficult classification problem into one that a linear separator can solve.</p>
     </section>
   </section>

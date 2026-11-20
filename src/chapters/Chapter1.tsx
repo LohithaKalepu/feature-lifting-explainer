@@ -27,7 +27,7 @@ export function Chapter1() {
           <span>Classification accuracy</span>
           <strong>{(accuracy(concentricDataset, boundary) * 100).toFixed(1)}%</strong>
         </div>
-        <p className="hint">Points on the positive side of the line are predicted as Class 1. Points on the other side are predicted as Class 0.</p>
+        <p>Points on the positive side of the line are predicted as Class 1. Points on the other side are predicted as Class 0.</p>
       </div>
     </div>
     <section className="chapter-one-discovery" aria-labelledby="chapter-one-discovery-heading">

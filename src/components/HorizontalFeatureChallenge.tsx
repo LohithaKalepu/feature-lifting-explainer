@@ -58,7 +58,7 @@ export function HorizontalFeatureChallenge({
             setTransformId(id)
           }}>{featureTransforms[id].label}</button>)}
       </div>
-      <p className="feature-description">{transform.label} feature <strong>{transform.expression}</strong></p>
+      <p className="feature-description">{transform.label} feature <span className="lifting-equation equation-accent">{transform.expression}</span></p>
       <label htmlFor={heightId}>Plane height <strong>c = {height.toFixed(2)}</strong></label>
       <input id={heightId} type="range" min={minHeight} max={maxHeight} step={0.05} value={height}
         onChange={event => setHeight(event.target.valueAsNumber)} />

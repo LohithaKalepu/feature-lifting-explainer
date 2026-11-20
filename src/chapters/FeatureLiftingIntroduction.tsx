@@ -12,7 +12,7 @@ export function FeatureLiftingIntroduction() {
     <section aria-labelledby="derived-feature-heading">
       <h3 id="derived-feature-heading">A derived feature</h3>
       <p>Given a number x, we can calculate x². We haven’t changed x; we’ve calculated something additional from it.</p>
-      <p className="lifting-equation"><strong>x → x²</strong></p>
+      <p className="lifting-equation equation-accent">x → x²</p>
       <dl className="scalar-example">
         <div><dt>Original value</dt><dd>x = {x}</dd></div>
         <div><dt>Derived value</dt><dd>x² = {x ** 2}</dd></div>
@@ -26,7 +26,7 @@ export function FeatureLiftingIntroduction() {
         <div className="lifting-diagram-flow">
           <div>
             <span>Original 2D point</span>
-            <strong>(x₁, x₂)</strong>
+            <span className="lifting-equation">(x₁, x₂)</span>
             <span>({x1}, {x2})</span>
           </div>
           <div className="lifting-diagram-arrow">
@@ -37,11 +37,11 @@ export function FeatureLiftingIntroduction() {
           </div>
           <div>
             <span>Lifted 3D representation</span>
-            <strong>(x₁, x₂, z)</strong>
+            <span className="lifting-equation">(x₁, x₂, z)</span>
             <span>({x1}, {x2}, {z})</span>
           </div>
         </div>
-        <figcaption className="lifting-equation">
+        <figcaption className="lifting-equation equation-accent">
           <span>φ(x₁, x₂) = </span><span>(x₁, x₂, x₁² + x₂²)</span>
         </figcaption>
       </figure>

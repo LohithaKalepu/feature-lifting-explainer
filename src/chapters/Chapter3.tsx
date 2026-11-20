@@ -59,9 +59,9 @@ export function Chapter3() {
       <h3 id="intersection-heading">How Does a Flat Plane Create a Circle?</h3>
       <p>The separating plane is flat. So why does the decision boundary look curved in the original 2D space?</p>
       <p>The horizontal plane cuts through the curved feature surface. Where the two surfaces meet, they form a circle. When we look at that intersection in the original 2D space, we see a circular decision boundary.</p>
-      <p>Feature surface <strong>z = x₁² + x₂²</strong></p>
-      <p>Separating plane <strong>z = c</strong></p>
-      <p>At the intersection <strong>x₁² + x₂² = c</strong></p>
+      <p>Feature surface <span className="lifting-equation">z = x₁² + x₂²</span></p>
+      <p>Separating plane <span className="lifting-equation">z = c</span></p>
+      <p>At the intersection <span className="lifting-equation equation-accent">x₁² + x₂² = c</span></p>
     </section>
     <div className="chapter-three-exploration">
       <WaterLevelAnalogy intersection={intersection} onHeightChange={setHeight} />
@@ -70,16 +70,16 @@ export function Chapter3() {
         <LinearityComparison points={points} height={height} radius={boundaryRadius} />
         <ol>
           <li>Compare the heights
-            <p><strong className="lifting-equation">f(x) = z − c</strong><br />Point height − plane height</p>
+            <p><span className="lifting-equation">f(x) = z − c</span><br /><span className="math-caption">Point height − plane height</span></p>
           </li>
           <li>Substitute the transformation
-            <p><strong className="lifting-equation">z = x₁² + x₂²</strong><br />
-              Therefore, <strong className="lifting-equation">f(x) = x₁² + x₂² − c</strong></p>
+            <p><span className="lifting-equation">z = x₁² + x₂²</span><br />
+              Therefore, <span className="lifting-equation">f(x) = x₁² + x₂² − c</span></p>
           </li>
           <li>Express it as a linear classifier
-            <p><strong className="lifting-equation">f(x) = wᵀφ(x) + b</strong><br />
-              φ(x) = (x₁, x₂, z), w = (0, 0, 1), b = −c</p>
-            <p><strong className="lifting-equation">0x₁ + 0x₂ + 1z − c = z − c</strong></p>
+            <p><span className="lifting-equation">f(x) = wᵀφ(x) + b</span><br />
+              <span className="lifting-equation">φ(x) = (x₁, x₂, z), w = (0, 0, 1), b = −c</span></p>
+            <p><span className="lifting-equation">0x₁ + 0x₂ + 1z − c = z − c</span></p>
           </li>
         </ol>
         <p>The classifier uses a linear combination of the transformed features. Its boundary is a flat plane in 3D, even though it appears as a circle in the original 2D space.</p>
