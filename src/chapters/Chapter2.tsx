@@ -80,7 +80,7 @@ export function Chapter2() {
           {transformId === 'original'
             ? <p>Original representation — no additional feature has been applied yet. All points lie on <strong>z = 0</strong>.</p>
             : <>
-              <p>{label} feature <strong>{expression}</strong></p>
+              <p>{label} feature <span className="lifting-equation equation-accent">{expression}</span></p>
               <p>{explanation}</p>
             </>}
         </div>
@@ -116,7 +116,7 @@ export function Chapter2() {
       <h3 id="selected-point-heading">Selected point</h3>
       {selectedPoint ? <>
         <p>Original point ({formatCoordinate(selectedPoint.x1)}, {formatCoordinate(selectedPoint.x2)})</p>
-        <p>Selected feature <strong>{expression}</strong></p>
+        <p>Selected feature <span className="lifting-equation equation-accent">{expression}</span></p>
         <p>Calculated feature value <strong>z = {formatCoordinate(selectedPoint.z)}</strong></p>
         <p>Transformed point ({formatCoordinate(selectedPoint.x1)}, {formatCoordinate(selectedPoint.x2)}, {formatCoordinate(selectedPoint.z)})</p>
         <p>Current displayed height <strong>{formatCoordinate(displayedHeight(selectedPoint.z, progress))}</strong></p>

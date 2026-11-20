@@ -15,7 +15,7 @@ export function WaterLevelAnalogy({ intersection, onHeightChange }: {
       <p>Imagine the curved feature surface as a bowl. Points near the center sit lower, while points farther away lie higher along the sides.</p>
       <p>Now imagine filling the bowl with water. Its surface stays flat, but the circle where it meets the bowl gets wider as the water rises.</p>
       <p>That circle is the same boundary produced when our flat separating plane intersects the transformed feature surface.</p>
-      <p><strong>c = 1 → r = 1</strong> · <strong>c = 4 → r = 2</strong>. The radius grows with the square root of the water height.</p>
+      <p><span className="lifting-equation">c = 1 → r = 1</span> · <span className="lifting-equation">c = 4 → r = 2</span>. The radius grows with the square root of the water height.</p>
     </section>
     <div className="chapter-three-water-workspace">
       <figure className="chapter-three-illustration">

@@ -18,7 +18,7 @@ export function LinearityComparison({ points, height, radius }: {
     <section>
       <h4>Curved boundary in original space</h4>
       <ScatterPlot2D points={concentricDataset} circularRadius={radius ?? undefined} />
-      <p><strong>x₁² + x₂² = c</strong></p>
+      <p><span className="lifting-equation equation-accent">x₁² + x₂² = c</span></p>
     </section>
     <section>
       <h4>Flat boundary in transformed space</h4>
@@ -32,7 +32,7 @@ export function LinearityComparison({ points, height, radius }: {
           })}
         </svg>
       </figure>
-      <p><strong>z = c</strong></p>
+      <p><span className="lifting-equation equation-accent">z = c</span></p>
     </section>
   </div>
 }

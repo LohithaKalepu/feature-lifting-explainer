@@ -28,7 +28,7 @@ export function SpiralFeasibility() {
       </table>
       <details>
         <summary>How we checked</summary>
-        <p>For f(x) = w₁x₁ + w₂x₂ + w₃g(x₁, x₂) + b, the solver varied all three weights and the intercept to look for yᵢf(xᵢ) ≥ 1 for every observation, where y is +1 for Class 1 and −1 for Class 0. Any strict separator for a finite dataset can be scaled to meet this unit-margin constraint. An infeasible result means no coefficients satisfy it.</p>
+        <p>For <span className="lifting-equation">f(x) = w₁x₁ + w₂x₂ + w₃g(x₁, x₂) + b</span>, the solver varied all three weights and the intercept to look for <span className="lifting-equation">yᵢf(xᵢ) ≥ 1</span> for every observation, where y is +1 for Class 1 and −1 for Class 0. Any strict separator for a finite dataset can be scaled to meet this unit-margin constraint. An infeasible result means no coefficients satisfy it.</p>
       </details>
     </section>
     <section className="explanation" aria-labelledby="expressivity-heading">

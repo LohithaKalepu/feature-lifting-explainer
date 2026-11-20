@@ -90,9 +90,9 @@ button[aria-pressed="true"] { background: var(--selected-bg); border-color: var(
 .accuracy, .lifting-controls { font-variant-numeric: tabular-nums; }
 .success-feedback { color: var(--success); }
 .feature-description { margin-top: 10px; }
-.feature-description strong, .explanation strong, .lifting-controls label strong { color: var(--boundary); }
+.lifting-controls label strong { color: var(--boundary); }
 .explanation { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 12px; max-width: 76ch; }
-.explanation p, .explanation li { color: var(--secondary); }
+.math-caption { color: var(--secondary); }
 #chapter-5 table { max-width: 100%; overflow-wrap: anywhere; border-collapse: collapse; text-align: left; }
 #chapter-5 caption { color: var(--secondary); text-align: left; margin-bottom: 8px; }
 #chapter-5 th, #chapter-5 td { padding: 8px; border-bottom: 1px solid var(--border); }
@@ -173,9 +173,10 @@ button[aria-pressed="true"] { background: var(--selected-bg); border-color: var(
 
 .lifting-introduction { max-width: 760px; margin-bottom: clamp(24px, 4vw, 48px); }
 .lifting-introduction section { margin-top: clamp(24px, 4vw, 44px); }
-.lifting-equation { font-family: var(--math-font); color: var(--boundary); }
+.lifting-equation, #chapter-5 tbody td:nth-child(2) { font-family: var(--math-font); font-weight: 400; color: var(--text); }
+.equation-accent { color: var(--boundary); }
 .scalar-example { display: flex; flex-wrap: wrap; gap: 12px 32px; margin: 12px 0 0; }
-.scalar-example dt, .lifting-diagram-flow span { color: var(--secondary); font-size: .875rem; }
+.scalar-example dt, .lifting-diagram-flow span:not(.lifting-equation) { color: var(--secondary); font-size: .875rem; }
 .scalar-example dd { margin: 2px 0 0; font-family: var(--math-font); }
 .lifting-diagram { margin: 20px 0; padding-block: 16px; border-block: 1px solid var(--border); }
 .lifting-diagram-flow {
@@ -186,7 +187,6 @@ button[aria-pressed="true"] { background: var(--selected-bg); border-color: var(
   text-align: center;
 }
 .lifting-diagram-flow > div { display: grid; justify-items: center; gap: 3px; }
-.lifting-diagram-flow strong { font-family: var(--math-font); }
 .lifting-diagram-arrow svg { width: 48px; height: 20px; color: var(--boundary); }
 .lifting-diagram figcaption { margin-top: 16px; text-align: center; }
 .lifting-diagram figcaption span { display: inline-block; }

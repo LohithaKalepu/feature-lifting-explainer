@@ -125,19 +125,19 @@ function TiltChallenge() {
       </fieldset>
     </div>
     <div className="tilt-plane-notes">
-      <p>Plane z = a·x₁ + b·x₂ + c, with (a, b, c) = ({plane.a.toFixed(2)}, {plane.b.toFixed(2)}, {plane.c.toFixed(2)}).</p>
-      <p>Projected boundary (x₁ − a/2)² + (x₂ − b/2)² = c + (a² + b²)/4 = {radiusSquared.toFixed(3)}.</p>
+      <p>Plane <span className="lifting-equation">z = a·x₁ + b·x₂ + c</span>, with (a, b, c) = ({plane.a.toFixed(2)}, {plane.b.toFixed(2)}, {plane.c.toFixed(2)}).</p>
+      <p>Projected boundary <span className="lifting-equation equation-accent">(x₁ − a/2)² + (x₂ − b/2)² = c + (a² + b²)/4 = {radiusSquared.toFixed(3)}</span>.</p>
       {boundaryRadius === null
         ? <p>The plane has no real intersection with the paraboloid at these settings.</p>
         : <p>Boundary center ({center.x.toFixed(3)}, {center.y.toFixed(3)}), radius {boundaryRadius.toFixed(3)}.
           {boundaryRadius === 0 && ' The intersection is a single point.'}</p>}
       <h3>How Does the Tilted Plane Classify Points?</h3>
-      <p><strong className="lifting-equation">f(x) = (x₁² + x₂²) − (ax₁ + bx₂ + c)</strong><br />
-        Point height (x₁² + x₂²) − Plane height (ax₁ + bx₂ + c)</p>
+      <p><span className="lifting-equation">f(x) = (x₁² + x₂²) − (ax₁ + bx₂ + c)</span><br />
+        <span className="math-caption">Point height (x₁² + x₂²) − Plane height (ax₁ + bx₂ + c)</span></p>
       <ul>
-        <li>f(x) ≥ 0 → Class 1 (outer), at or above the plane</li>
-        <li>f(x) &lt; 0 → Class 0 (inner), below the plane</li>
-        <li>f(x) = 0 → decision boundary</li>
+        <li><span className="lifting-equation">f(x) ≥ 0</span> → Class 1 (outer), at or above the plane</li>
+        <li><span className="lifting-equation">f(x) &lt; 0</span> → Class 0 (inner), below the plane</li>
+        <li><span className="lifting-equation">f(x) = 0</span> → decision boundary</li>
       </ul>
     </div>
   </section>
