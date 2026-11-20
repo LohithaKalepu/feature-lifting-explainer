@@ -125,13 +125,20 @@ function TiltChallenge() {
       </fieldset>
     </div>
     <div className="tilt-plane-notes">
-      <p>The separating plane remains linear in the transformed feature space.</p>
       <p>Plane z = a·x₁ + b·x₂ + c, with (a, b, c) = ({plane.a.toFixed(2)}, {plane.b.toFixed(2)}, {plane.c.toFixed(2)}).</p>
       <p>Projected boundary (x₁ − a/2)² + (x₂ − b/2)² = c + (a² + b²)/4 = {radiusSquared.toFixed(3)}.</p>
       {boundaryRadius === null
         ? <p>The plane has no real intersection with the paraboloid at these settings.</p>
         : <p>Boundary center ({center.x.toFixed(3)}, {center.y.toFixed(3)}), radius {boundaryRadius.toFixed(3)}.
           {boundaryRadius === 0 && ' The intersection is a single point.'}</p>}
+      <h3>How Does the Tilted Plane Classify Points?</h3>
+      <p><strong className="lifting-equation">f(x) = (x₁² + x₂²) − (ax₁ + bx₂ + c)</strong><br />
+        Point height (x₁² + x₂²) − Plane height (ax₁ + bx₂ + c)</p>
+      <ul>
+        <li>f(x) ≥ 0 → Class 1 (outer), at or above the plane</li>
+        <li>f(x) &lt; 0 → Class 0 (inner), below the plane</li>
+        <li>f(x) = 0 → decision boundary</li>
+      </ul>
     </div>
   </section>
 }

@@ -68,13 +68,21 @@ export function Chapter3() {
       <section className="explanation chapter-three-linearity-section" aria-labelledby="plane-math-heading">
         <h3 id="plane-math-heading">Why Is the Classifier Still Linear?</h3>
         <LinearityComparison points={points} height={height} radius={boundaryRadius} />
-        <p>Both views show the boundary of the same classifier. In transformed space, the classifier simply asks whether a point’s height reaches the plane.</p>
-        <ul>
-          <li>z ≥ c → Class 1</li>
-          <li>z &lt; c → Class 0</li>
-        </ul>
-        <p>Because z = x₁² + x₂², the same rule in the original coordinates is <strong>x₁² + x₂² ≥ c</strong>. The squared inputs produce the curved boundary.</p>
-        <p>The formal decision function is <strong>f(x) = wᵀφ(x) + b</strong>, with φ(x) = (x₁, x₂, x₁² + x₂²), w = (0, 0, 1), and b = −c.</p>
+        <ol>
+          <li>Compare the heights
+            <p><strong className="lifting-equation">f(x) = z − c</strong><br />Point height − plane height</p>
+          </li>
+          <li>Substitute the transformation
+            <p><strong className="lifting-equation">z = x₁² + x₂²</strong><br />
+              Therefore, <strong className="lifting-equation">f(x) = x₁² + x₂² − c</strong></p>
+          </li>
+          <li>Express it as a linear classifier
+            <p><strong className="lifting-equation">f(x) = wᵀφ(x) + b</strong><br />
+              φ(x) = (x₁, x₂, z), w = (0, 0, 1), b = −c</p>
+            <p><strong className="lifting-equation">0x₁ + 0x₂ + 1z − c = z − c</strong></p>
+          </li>
+        </ol>
+        <p>The classifier uses a linear combination of the transformed features. Its boundary is a flat plane in 3D, even though it appears as a circle in the original 2D space.</p>
       </section>
     </div>
     <p className="chapter-handoff">Now that you've seen how a flat plane creates a curved boundary, can you apply the idea yourself?</p>
