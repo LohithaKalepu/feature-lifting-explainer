@@ -62,49 +62,55 @@ export function Chapter2() {
     <p className="eyebrow">Chapter 2 — Feature Lifting</p>
     <h2 id="lifting-heading">What if we looked at the same data differently?</h2>
     <FeatureLiftingIntroduction />
-    <fieldset className="lifting-controls">
-      <legend>Feature transformation</legend>
-      <p>Choose a feature to see how the same data can be represented differently.</p>
-      <div className="lifting-buttons">
-        {transformIds.map(id => {
-          const { label, expression } = featureTransforms[id]
-          return <button key={id} type="button" aria-pressed={transformId === id} onClick={() => {
-            if (id === transformId) return
-            stopAt(0)
-            setTransformId(id)
-          }}>{label} ({expression})</button>
-        })}
+    <div className="chapter-two-workspace">
+      <fieldset className="lifting-controls">
+        <legend>Feature transformation</legend>
+        <p>Choose a feature to see how the same data can be represented differently.</p>
+        <div className="lifting-buttons">
+          {transformIds.map(id => {
+            const { label, expression } = featureTransforms[id]
+            return <button key={id} type="button" aria-pressed={transformId === id} onClick={() => {
+              if (id === transformId) return
+              stopAt(0)
+              setTransformId(id)
+            }}>{label} ({expression})</button>
+          })}
+        </div>
+        <div className="feature-description" aria-live="polite">
+          {transformId === 'original'
+            ? <p>Original representation — no additional feature has been applied yet. All points lie on <strong>z = 0</strong>.</p>
+            : <>
+              <p>{label} feature <strong>{expression}</strong></p>
+              <p>{explanation}</p>
+            </>}
+        </div>
+      </fieldset>
+      <fieldset className="lifting-controls chapter-two-lifting-controls">
+        <legend>Lift the points</legend>
+        <div className="chapter-two-playback">
+          <div className="chapter-two-progress">
+            <label htmlFor="lifting-progress">Lifting Progress <strong>{Math.round(progress * 100)}%</strong></label>
+            <input id="lifting-progress" type="range" min={0} max={100} step={1} value={Math.round(progress * 100)}
+              aria-valuetext={`${Math.round(progress * 100)}%`}
+              onChange={event => stopAt(Number(event.target.value) / 100)} />
+          </div>
+          <div className="lifting-buttons">
+            <button type="button" onClick={playLifting} disabled={playing}>Play Lifting</button>
+            <button type="button" onClick={() => stopAt(0)}>Reset Lifting</button>
+          </div>
+        </div>
+      </fieldset>
+      <div className="dataset-views">
+        <section>
+          <h3>Original 2D dataset</h3>
+          <ScatterPlot2D points={concentricDataset} selectedId={selectedId} onSelect={setSelectedId} />
+        </section>
+        <section>
+          <h3>Interactive 3D dataset</h3>
+          <ScatterPlot3D points={points} surface={surface} radius={plotRadius} progress={progress}
+            selectedId={selectedId} onSelect={setSelectedId} />
+        </section>
       </div>
-      <div className="feature-description" aria-live="polite">
-        {transformId === 'original'
-          ? <p>Original representation — no additional feature has been applied yet. All points lie on <strong>z = 0</strong>.</p>
-          : <>
-            <p>{label} feature <strong>{expression}</strong></p>
-            <p>{explanation}</p>
-          </>}
-      </div>
-    </fieldset>
-    <fieldset className="lifting-controls">
-      <legend>Lift the points</legend>
-      <label htmlFor="lifting-progress">Lifting Progress <strong>{Math.round(progress * 100)}%</strong></label>
-      <input id="lifting-progress" type="range" min={0} max={100} step={1} value={Math.round(progress * 100)}
-        aria-valuetext={`${Math.round(progress * 100)}%`}
-        onChange={event => stopAt(Number(event.target.value) / 100)} />
-      <div className="lifting-buttons">
-        <button type="button" onClick={playLifting} disabled={playing}>Play Lifting</button>
-        <button type="button" onClick={() => stopAt(0)}>Reset Lifting</button>
-      </div>
-    </fieldset>
-    <div className="dataset-views">
-      <section>
-        <h3>Original 2D dataset</h3>
-        <ScatterPlot2D points={concentricDataset} selectedId={selectedId} onSelect={setSelectedId} />
-      </section>
-      <section>
-        <h3>Interactive 3D dataset</h3>
-        <ScatterPlot3D points={points} surface={surface} radius={plotRadius} progress={progress}
-          selectedId={selectedId} onSelect={setSelectedId} />
-      </section>
     </div>
     <section className="explanation" aria-labelledby="selected-point-heading">
       <h3 id="selected-point-heading">Selected point</h3>

@@ -1,25 +1,22 @@
 import results from '../data/spiral_feasibility_results.json'
 
 const outcomeLabels: Record<string, string> = {
-  feasible: 'Feasible',
-  infeasible: 'Infeasible',
+  feasible: 'Yes',
+  infeasible: 'No, there is no separating plane',
   inconclusive: 'Inconclusive',
 }
 
 export function SpiralFeasibility() {
-  const outcomes = results.transformations.map(result => result.outcome)
-  const feasible = results.transformations.filter(result => result.outcome === 'feasible')
-  const inconclusive = outcomes.includes('inconclusive')
-
   return <>
-    <section className="explanation" aria-labelledby="spiral-feasibility-heading">
-      <h3 id="spiral-feasibility-heading">But What If We Tilted the Plane?</h3>
-      <p>So far, we've only moved a horizontal plane up and down. Perhaps a tilted plane could do better.</p>
-      <p>We therefore tested whether any flat separating plane, regardless of its orientation or position, could perfectly classify the {results.dataset.observationCount} transformed spiral observations.</p>
+    <section className="explanation" aria-labelledby="spiral-threshold-heading">
+      <h3 id="spiral-threshold-heading">Why Couldn't We Reach 100%?</h3>
+      <p>For each of the three features we tried, every horizontal plane misclassifies at least one of these spiral observations.</p>
+      <h4>But What If We Tilted the Plane?</h4>
+      <p>For each feature, a solver checked whether any linear plane, at any angle or position, could put all {results.dataset.observationCount} transformed observations strictly on the correct sides.</p>
       <table>
-        <caption>Strict linear separation on the spiral dataset</caption>
+        <caption>Can a linear plane perfectly separate these spiral observations?</caption>
         <thead>
-          <tr><th scope="col">Transformation</th><th scope="col">Feature</th><th scope="col">General plane</th></tr>
+          <tr><th scope="col">Transformation</th><th scope="col">Feature</th><th scope="col">Audit result</th></tr>
         </thead>
         <tbody>
           {results.transformations.map(result => <tr key={result.id}>
@@ -29,33 +26,20 @@ export function SpiralFeasibility() {
           </tr>)}
         </tbody>
       </table>
-      {outcomes.every(outcome => outcome === 'infeasible')
-        ? <p>Even when we allow the separating plane to rotate and move freely, none of these three feature mappings makes our chosen spiral observations perfectly linearly separable.</p>
-        : <>
-          {feasible.length > 0 && <p>The audit verified strict separation for {feasible.map(result => result.label).join(', ')}.</p>}
-          {inconclusive && <p>Inconclusive results leave open whether those mappings admit a separating plane.</p>}
-        </>}
-      <p>The results apply to the three mappings and the observations tested here. Infeasible means the audit ruled out a strictly separating plane for that mapping on this dataset.</p>
       <details>
         <summary>How we checked</summary>
-        <p>For f(x) = w₁x₁ + w₂x₂ + w₃g(x₁, x₂) + b, the solver looked for coefficients with yᵢf(xᵢ) ≥ 1 for every observation, where y is +1 for Class 1 and −1 for Class 0. The audit let all three weights and the intercept vary.</p>
+        <p>For f(x) = w₁x₁ + w₂x₂ + w₃g(x₁, x₂) + b, the solver varied all three weights and the intercept to look for yᵢf(xᵢ) ≥ 1 for every observation, where y is +1 for Class 1 and −1 for Class 0. Any strict separator for a finite dataset can be scaled to meet this unit-margin constraint. An infeasible result means no coefficients satisfy it.</p>
       </details>
     </section>
     <section className="explanation" aria-labelledby="expressivity-heading">
-      <h3 id="expressivity-heading">Why Not Keep Adding More Features?</h3>
-      <p>Our three transformations may miss the structure we need to separate the spiral classes. What if we designed a feature that captured the spiral pattern itself? A more expressive representation might make these observations easier to separate.</p>
-      <p>So why not keep adding increasingly complex features until every observation is classified correctly? Perfect accuracy on the observations we already have does not guarantee good predictions on new ones. The risk of overfitting depends on the data, feature representation, model complexity, and regularization.</p>
+      <h3 id="expressivity-heading">What if we kept adding new features?</h3>
+      <p>A more expressive representation might capture the spiral pattern and make the classes easier to separate. A model can still overfit by learning details peculiar to the training observations. Even perfect training accuracy leaves open how well it will classify unseen examples.</p>
     </section>
     <section className="explanation" aria-labelledby="explainer-conclusion-heading">
       <h3 id="explainer-conclusion-heading">What Did We Learn?</h3>
-      <ol>
-        <li>A straight line cannot perfectly separate the original concentric classes.</li>
-        <li>Feature lifting adds coordinates derived from the original inputs.</li>
-        <li>A flat plane separated the lifted concentric observations and projected back to a circular boundary.</li>
-        <li>Concentric circles and XOR benefited from different features.</li>
-        <li>A limited set of features may fall short on a different dataset, as we saw with the spirals.</li>
-      </ol>
-      <p className="chapter-handoff"><strong>The classifier can remain linear in the transformed feature space, even when its decision boundary is nonlinear in the original input space.</strong></p>
+      <p><strong>Feature lifting allows us to keep the classifier linear in a transformed feature space while producing nonlinear decision boundaries in the original input space.</strong></p>
+      <p>The radial quadratic feature gave the concentric classes a circular boundary. The interaction feature separated the XOR classes by the sign of the product. For the spirals, none of the three features we tried allowed perfect linear separation.</p>
+      <p className="chapter-handoff">Feature lifting works when the added features capture structure that helps distinguish the classes. Adding dimensions alone gives no guarantee of separation.</p>
     </section>
   </>
 }

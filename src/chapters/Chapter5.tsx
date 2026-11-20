@@ -13,10 +13,6 @@ export function Chapter5() {
     <HorizontalFeatureChallenge dataset={spiralDataset} datasetName="intertwined spirals"
       plotDescription="The blue and orange classes form two spiral arms that wind around the origin."
       classLabels={classLabels} resettable />
-    <section className="explanation" aria-labelledby="spiral-threshold-heading">
-      <h3 id="spiral-threshold-heading">Why Couldn't We Reach 100%?</h3>
-      <p>The transformations we tried may not capture the structure needed to distinguish these spiral patterns using a horizontal plane.</p>
-    </section>
     <SpiralFeasibility />
   </section>
 }

@@ -231,3 +231,23 @@ node scripts/export_spiral_audit.ts | python scripts/audit_spiral_feasibility.py
 - Separated the horizontal-plane explanation from the saved general-plane results. The table still reads the original audit artifact, and the unit-margin formulation now appears in a secondary technical note. The feature-expressivity discussion and five-point recap are visible in the initial document.
 - Replaced tests for the retired checkpoints with a document-order regression check. All 66 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
 - Safari confirmed all three feature choices, a live score change from 65/144 to 68/144 when moving the Linear plane from c = 0 to c = 2, and Reset returning to zero. The browser accessibility tree showed all three infeasible rows and the conclusion without a reveal action.
+
+## Chapters 2 and 3 live-update visibility
+
+- Grouped the Chapter 2 selector, playback strip, and plots into one workspace. The selector remains before the plots. The slider and Play/Reset share a compact strip that stays at the top of the workspace while scrolling on viewports with sufficient height. An initial Safari check showed that sticking the full selector and playback block obscured too much of the plots, so only playback sticks.
+- Made the Chapter 3 comparison wider and placed the existing bowl and water slider in a sticky desktop column alongside it. On narrow screens the layout stacks and only the existing slider can stick. The same height still drives the bowl, comparison, and main classifier.
+- Safari showed both Chapter 2 plots with the compact strip at 50% lifting, and later showed the enlarged Chapter 3 comparison alongside the bowl and water slider. Play entered its playing state but Safari automation did not observe progress beyond 0%. The mobile sticky behavior was not visually verified.
+- All 66 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## XOR camera framing
+
+- Added an XOR-only perspective default and reset view at a shallow angle so the purple plane has a visible face and the interaction feature's positive and negative heights read vertically. The camera fits the observations, axes, and full selectable plane-height range without fitting the outer edges of the theoretical surface. Linear, Interaction, and Radial quadratic share this framing, so switching features preserves the camera pose.
+- Reduced XOR surface opacity, highlighted the existing purple plane perimeter, and enlarged its observation markers. Surface geometry and depth testing are unchanged. The shared camera settings for the other exercises are unchanged.
+- A numerical projection check kept all 80 observations in frame for all three mappings, along with the axis label anchors and plane corners at c = −6, 0, and 10. With Interaction and c = 0, all orange marker centers projected above the plane center and all blue marker centers below it. Safari confirmed 80/80 at c = 0 and showed the outlined plane and faint saddle after Reset Camera. The browser capture clipped the upper portion of the plot, and browser automation lost access to the window before manual drag and zoom could be verified.
+- All 66 tests passed. The production build passed with the existing chunk-size warning. The diff check passed.
+
+## Chapter 5 results and conclusion
+
+- Combined the horizontal-plane explanation and tilted-plane audit under “Why Couldn't We Reach 100%?” The table translates all three saved infeasible outcomes into plain language. The optional “How we checked” disclosure explains strict separation and the unit-margin constraint.
+- Added a short transition from expressive features to generalization, then connected the feature-lifting conclusion to the concentric circles, XOR, and spirals. The results and conclusion are present in the initial document.
+- The first test run surfaced a display assertion expecting “Infeasible.” Updated the display and story-order assertions while retaining the audit's input digest and solver status checks. All 66 tests passed on rerun. The production build passed with the existing chunk-size warning, and the diff check passed.

@@ -19,9 +19,10 @@ const fieldOfView = 44
 const markerSize: [number, number, number] = [0.065, 12, 8]
 const viewDirection = new Vector3(5, 7, 7).normalize()
 
-const tiltViewDirection = new Vector3(5, 11, 8).normalize()
+const tiltViewDirection = new Vector3(4, 3, 8).normalize()
 const classifierViewDirection = new Vector3(4, 4, 9).normalize()
 const bowlViewDirection = new Vector3(4, 12, 8).normalize()
+const xorViewDirection = new Vector3(3, 1.5, 9).normalize()
 
 const cameraPresets = {
   Perspective: viewDirection,
@@ -37,15 +38,17 @@ interface CameraSnapshot {
   preset?: { view: CameraPreset }
 }
 
-function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlView, focusTilt, focusClassifier }: {
+function PlotCamera({ controls, radius, minZ, maxZ, targetHeight, preset, savedCamera, bowlView, focusTilt, focusClassifier, focusXor }: {
   controls: OrbitControlsRef
   savedCamera: MutableRefObject<CameraSnapshot | undefined>
   bowlView: boolean
   focusTilt: boolean
   focusClassifier: boolean
+  focusXor: boolean
   radius: number
   minZ: number
   maxZ: number
+  targetHeight?: number
   preset?: { view: CameraPreset }
 }) {
   const camera = useThree(state => state.camera)
@@ -55,9 +58,12 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
   const boundingRadius = Math.hypot(radius, radius, halfHeight)
   // The viewport is square. Fit an enclosing sphere so orbiting keeps the
   // same geometry in view at the default zoom.
-  const distance = 1.08 * boundingRadius / Math.sin(MathUtils.degToRad(fieldOfView / 2))
+  const halfFov = MathUtils.degToRad(fieldOfView / 2)
+  const distance = focusXor
+    ? xorCameraDistance(radius, halfHeight, halfFov)
+    : 1.08 * boundingRadius / Math.sin(halfFov)
 
-  const direction = focusClassifier ? classifierViewDirection : focusTilt ? tiltViewDirection : bowlView && (!preset || preset.view === 'Perspective')
+  const direction = focusXor ? xorViewDirection : focusClassifier ? classifierViewDirection : focusTilt ? tiltViewDirection : bowlView && (!preset || preset.view === 'Perspective')
     ? bowlViewDirection
     : preset ? cameraPresets[preset.view] : viewDirection
   let viewRadius = boundingRadius
@@ -67,7 +73,8 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
     viewRadius = Math.max(radius, halfHeight)
   } else if (focusTilt || (bowlView && preset?.view === 'Perspective')) {
     const horizontalExtent = radius * Math.SQRT2
-    const verticalExtent = halfHeight * Math.hypot(direction.x, direction.z) + horizontalExtent * direction.y
+    const targetOffset = targetHeight === undefined ? 0 : Math.abs(targetHeight - (minZ + halfHeight))
+    const verticalExtent = (halfHeight + targetOffset) * Math.hypot(direction.x, direction.z) + horizontalExtent * direction.y
     viewRadius = Math.max(horizontalExtent, verticalExtent)
   }
 
@@ -81,7 +88,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
     if (!orbit) return
 
     const previous = savedCamera.current
-    orbit.target.set(...toWorldPosition({ x1: 0, x2: 0, z: minZ + halfHeight }))
+    orbit.target.set(...toWorldPosition({ x1: 0, x2: 0, z: targetHeight ?? minZ + halfHeight }))
     camera.position.copy(orbit.target).addScaledVector(direction, distance)
     if (camera instanceof OrthographicCamera) {
       camera.zoom = zoom
@@ -101,7 +108,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
     return () => {
       savedCamera.current = { position: camera.position.clone(), zoom: camera.zoom, framing, preset }
     }
-  }, [camera, controls, direction, distance, framing, halfHeight, invalidate, minZ, preset, savedCamera, zoom])
+  }, [camera, controls, direction, distance, framing, halfHeight, invalidate, minZ, preset, savedCamera, targetHeight, zoom])
 
   return <OrbitControls
     ref={controls}
@@ -114,7 +121,25 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
   />
 }
 
-export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selectedId, onSelect, tiltedPlane, planeHeight, minimumPlaneHeight, maximumPlaneHeight, intersection, water, showCameraPresets = false, bowlView = false, focusTilt = false, focusClassifier = false }: {
+function xorCameraDistance(radius: number, halfHeight: number, halfFov: number) {
+  // Fit the usable plane sweep from this angle, including its near corners.
+  const right = new Vector3(0, 1, 0).cross(xorViewDirection).normalize()
+  const up = xorViewDirection.clone().cross(right)
+  const paddedSlope = Math.tan(halfFov) * 0.88
+  let distance = 0
+  for (const x of [-radius, radius]) {
+    for (const y of [-halfHeight, halfHeight]) {
+      for (const z of [-radius, radius]) {
+        const corner = new Vector3(x, y, z)
+        const extent = Math.max(Math.abs(corner.dot(right)), Math.abs(corner.dot(up)))
+        distance = Math.max(distance, corner.dot(xorViewDirection) + extent / paddedSlope)
+      }
+    }
+  }
+  return distance
+}
+
+export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selectedId, onSelect, tiltedPlane, planeHeight, minimumPlaneHeight, maximumPlaneHeight, intersection, water, showCameraPresets = false, bowlView = false, focusTilt = false, focusClassifier = false, focusXor = false, cameraTargetHeight }: {
   points: readonly DataPoint3D[]
   radius?: number
   surface?: FeatureSurfaceData
@@ -128,6 +153,8 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
   bowlView?: boolean
   focusTilt?: boolean
   focusClassifier?: boolean
+  focusXor?: boolean
+  cameraTargetHeight?: number
   progress?: number
   selectedId?: string
   onSelect?: (id: string) => void
@@ -148,8 +175,8 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
     return () => observer.disconnect()
   }, [])
   const [preset, setPreset] = useState<{ view: CameraPreset }>({ view: 'Perspective' })
-  const minZ = points.reduce((min, point) => Math.min(min, point.z), Math.min(water?.height ?? 0, planeHeight ?? 0, minimumPlaneHeight ?? 0, surface?.minZ ?? 0))
-  const maxZ = points.reduce((max, point) => Math.max(max, point.z), Math.max(3, surface?.maxZ ?? 0, planeHeight ?? 0, maximumPlaneHeight ?? 0, water?.height ?? 0))
+  const minZ = points.reduce((min, point) => Math.min(min, point.z), Math.min(water?.height ?? 0, planeHeight ?? 0, minimumPlaneHeight ?? 0, focusXor ? 0 : surface?.minZ ?? 0))
+  const maxZ = points.reduce((max, point) => Math.max(max, point.z), Math.max(3, focusXor ? 0 : surface?.maxZ ?? 0, planeHeight ?? 0, maximumPlaneHeight ?? 0, water?.height ?? 0))
 
   return <>
     <div ref={viewport} className="scatter-3d" role="group" aria-label="3D scatter plot with x₁, x₂, and z axes">
@@ -165,8 +192,8 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
         <ambientLight intensity={1.1} />
         <directionalLight position={[4, 8, 3]} intensity={2.1} />
         <CoordinateAxes3D radius={radius} minZ={minZ} maxZ={maxZ} />
-        {surface && <FeatureSurface3D surface={surface} progress={progress} opacity={focusClassifier ? 0.14 : bowlView ? 0.43 : undefined} />}
-        {planeHeight !== undefined && <SeparatingPlane3D height={planeHeight} radius={radius} outlined={focusClassifier} />}
+        {surface && <FeatureSurface3D surface={surface} progress={progress} opacity={focusXor ? 0.1 : focusClassifier ? 0.14 : bowlView ? 0.43 : undefined} />}
+        {planeHeight !== undefined && <SeparatingPlane3D height={planeHeight} radius={radius} outlined={focusClassifier || focusXor} />}
         {tiltedPlane && <TiltedPlane3D plane={tiltedPlane} radius={radius} clipBelow={focusTilt ? minimumPlaneHeight : undefined} />}
         {water && water.radius !== null && water.radius > 0 &&
           <WaterSurface3D height={water.height} radius={water.radius} />}
@@ -174,7 +201,7 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
         {points.map(point => {
           const selected = point.id === selectedId
           return <group key={point.id} position={toWorldPosition(observationAtProgress(point, progress))}>
-            <mesh renderOrder={2} scale={selected ? 1.5 : focusTilt || focusClassifier ? 1.6 : 1} onClick={onSelect && (event => {
+            <mesh renderOrder={2} scale={selected ? 1.5 : focusTilt || focusClassifier || focusXor ? 1.6 : 1} onClick={onSelect && (event => {
               if (event.delta > 3) return
               event.stopPropagation()
               onSelect(point.id)
@@ -189,8 +216,8 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
             </mesh>}
           </group>
         })}
-        <PlotCamera controls={controls} savedCamera={savedCamera} radius={radius} minZ={minZ} maxZ={maxZ}
-          preset={showCameraPresets ? preset : undefined} bowlView={bowlView} focusTilt={focusTilt} focusClassifier={focusClassifier} />
+        <PlotCamera controls={controls} savedCamera={savedCamera} radius={radius} minZ={minZ} maxZ={maxZ} targetHeight={cameraTargetHeight}
+          preset={showCameraPresets ? preset : undefined} bowlView={bowlView} focusTilt={focusTilt} focusClassifier={focusClassifier} focusXor={focusXor} />
       </Canvas>}
     </div>
     {showCameraPresets && <div className="camera-actions" role="group" aria-label="Camera presets">

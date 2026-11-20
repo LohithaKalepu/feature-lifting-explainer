@@ -9,13 +9,14 @@ const transformations = ['linear', 'interaction', 'radial'] as const
 const plotRadius = 3
 
 export function HorizontalFeatureChallenge({
-  dataset, datasetName, plotDescription, classLabels, resettable = false,
+  dataset, datasetName, plotDescription, classLabels, resettable = false, focusXor = false,
 }: {
   dataset: DataPoint[]
   datasetName: string
   plotDescription: string
   classLabels: readonly [string, string]
   resettable?: boolean
+  focusXor?: boolean
 }) {
   const heightId = useId()
   const [transformId, setTransformId] = useState<(typeof transformations)[number]>('linear')
@@ -45,7 +46,7 @@ export function HorizontalFeatureChallenge({
       <section>
         <h3>Transformed {datasetName} dataset</h3>
         <ScatterPlot3D points={points} surface={surface} radius={plotRadius}
-          planeHeight={height} minimumPlaneHeight={minHeight} maximumPlaneHeight={maxHeight} />
+          planeHeight={height} minimumPlaneHeight={minHeight} maximumPlaneHeight={maxHeight} focusXor={focusXor} />
       </section>
     </div>
     <fieldset className="lifting-controls">

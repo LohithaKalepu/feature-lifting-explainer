@@ -8,7 +8,7 @@ export function XorChallenge() {
     <h2 id="xor-heading">Exercise 2 — The XOR Challenge</h2>
     <p><strong>Which feature transformation makes this dataset linearly separable?</strong></p>
     <p>Unlike concentric circles, XOR places the two classes in opposite diagonal quadrants. Explore how different transformations change the representation of these points.</p>
-    <HorizontalFeatureChallenge dataset={xorDataset} datasetName="XOR" classLabels={classLabels}
+    <HorizontalFeatureChallenge dataset={xorDataset} datasetName="XOR" classLabels={classLabels} focusXor
       plotDescription="Orange points occupy same-sign quadrants. Blue points occupy opposite-sign quadrants." />
     <section className="explanation" aria-labelledby="xor-explanation-heading">
       <h3 id="xor-explanation-heading">Why Does the Interaction Feature Work?</h3>

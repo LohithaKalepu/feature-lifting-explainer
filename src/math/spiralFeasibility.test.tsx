@@ -55,9 +55,9 @@ describe('offline spiral feasibility audit', () => {
     const markup = renderToStaticMarkup(<SpiralFeasibility />)
     const body = markup.match(/<tbody>(.*?)<\/tbody>/)?.[1] ?? ''
     const rows = [...body.matchAll(/<tr><th scope="row">(.*?)<\/th><td>(.*?)<\/td><td>(.*?)<\/td><\/tr>/g)]
-    expect(rows.map(row => row.slice(1))).toEqual(results.transformations.map(({ id, outcome }) => {
+    expect(rows.map(row => row.slice(1))).toEqual(results.transformations.map(({ id }) => {
       const { label, expression } = featureTransforms[id as FeatureTransformId]
-      return [label, expression, outcome[0].toUpperCase() + outcome.slice(1)]
+      return [label, expression, 'No, there is no separating plane']
     }))
   })
 })

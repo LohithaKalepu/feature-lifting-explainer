@@ -11,6 +11,8 @@ const radius = 4
 const bounds = { minX: -radius, maxX: radius, minY: -radius, maxY: radius }
 const radialHeight = featureTransforms.radial.height
 const points = transformPoints(shiftedConcentricDataset, radialHeight)
+const initialPlane: FeaturePlane = { a: 0, b: 0, c: 1 }
+const cameraTargetHeight = (initialPlane.c + Math.max(...points.map(point => point.z))) / 2
 const maxTiltX1 = 2.4
 const maxTiltX2 = 1.8
 const minimumIntercept = -3
@@ -49,7 +51,7 @@ export function Chapter4() {
 }
 
 function TiltChallenge() {
-  const [plane, setPlane] = useState<FeaturePlane>({ a: 0, b: 0, c: 1 })
+  const [plane, setPlane] = useState<FeaturePlane>(initialPlane)
   const plotEnd = useRef<HTMLDivElement>(null)
   const toolbar = useRef<HTMLFieldSetElement>(null)
   const [canDock, setCanDock] = useState(false)
@@ -94,7 +96,7 @@ function TiltChallenge() {
           <h3>Lifted dataset and separating plane</h3>
           <ScatterPlot3D points={points} surface={surface} radius={radius} tiltedPlane={plane}
             minimumPlaneHeight={minimumPlaneHeight} maximumPlaneHeight={maximumPlaneHeight}
-            intersection={intersection} focusTilt />
+            intersection={intersection} focusTilt cameraTargetHeight={cameraTargetHeight} />
         </section>
       </div>
       <div ref={plotEnd} className="tilt-plot-end" aria-hidden="true" />
