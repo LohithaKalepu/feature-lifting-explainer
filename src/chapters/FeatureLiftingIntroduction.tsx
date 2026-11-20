@@ -47,6 +47,7 @@ export function FeatureLiftingIntroduction() {
       </figure>
       <p>The first two coordinates remain unchanged. We simply add a third coordinate calculated from them. This gives us a new representation of the same observation using the two original measurements.</p>
     </section>
+    <p>We can calculate different features from the same original coordinates. Different transformations reveal different patterns. A useful transformation is one that helps distinguish the classes we're trying to separate.</p>
     <p className="chapter-handoff">Now let’s see what happens when we apply this idea to every point in our dataset.</p>
   </div>
 }

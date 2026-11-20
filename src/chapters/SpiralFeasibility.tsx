@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import results from '../data/spiral_feasibility_results.json'
 
 const outcomeLabels: Record<string, string> = {
@@ -7,20 +6,16 @@ const outcomeLabels: Record<string, string> = {
   inconclusive: 'Inconclusive',
 }
 
-export function SpiralFeasibility({ showConclusion, conclusionControl }: {
-  showConclusion: boolean
-  conclusionControl?: ReactNode
-}) {
+export function SpiralFeasibility() {
   const outcomes = results.transformations.map(result => result.outcome)
   const feasible = results.transformations.filter(result => result.outcome === 'feasible')
   const inconclusive = outcomes.includes('inconclusive')
 
   return <>
     <section className="explanation" aria-labelledby="spiral-feasibility-heading">
-      <h3 id="spiral-feasibility-heading">Can Any Linear Plane Separate These Spirals?</h3>
-      <p>We tried horizontal planes, but what if we allowed the separating plane to tilt in any direction?</p>
-      <p>The audit used all {results.dataset.observationCount} spiral observations. It allowed all three feature weights and the intercept to vary, so it tested every orientation and position of a linear plane.</p>
-      <p>For f(x) = w₁x₁ + w₂x₂ + w₃g(x₁, x₂) + b, the solver looked for coefficients with yᵢf(xᵢ) ≥ 1 for every observation, where y is +1 for Class 1 and −1 for Class 0.</p>
+      <h3 id="spiral-feasibility-heading">But What If We Tilted the Plane?</h3>
+      <p>So far, we've only moved a horizontal plane up and down. Perhaps a tilted plane could do better.</p>
+      <p>We therefore tested whether any flat separating plane, regardless of its orientation or position, could perfectly classify the {results.dataset.observationCount} transformed spiral observations.</p>
       <table>
         <caption>Strict linear separation on the spiral dataset</caption>
         <thead>
@@ -40,23 +35,27 @@ export function SpiralFeasibility({ showConclusion, conclusionControl }: {
           {feasible.length > 0 && <p>The audit verified strict separation for {feasible.map(result => result.label).join(', ')}.</p>}
           {inconclusive && <p>Inconclusive results leave open whether those mappings admit a separating plane.</p>}
         </>}
-      <p>Other feature mappings can produce different representations of spirals. These results apply to the three mappings and the finite set of observations tested here.</p>
+      <p>The results apply to the three mappings and the observations tested here. Infeasible means the audit ruled out a strictly separating plane for that mapping on this dataset.</p>
+      <details>
+        <summary>How we checked</summary>
+        <p>For f(x) = w₁x₁ + w₂x₂ + w₃g(x₁, x₂) + b, the solver looked for coefficients with yᵢf(xᵢ) ≥ 1 for every observation, where y is +1 for Class 1 and −1 for Class 0. The audit let all three weights and the intercept vary.</p>
+      </details>
     </section>
     <section className="explanation" aria-labelledby="expressivity-heading">
       <h3 id="expressivity-heading">Why Not Keep Adding More Features?</h3>
-      <p>More expressive feature mappings can produce more complicated decision boundaries and make difficult patterns easier to separate. Perfect accuracy on training observations gives no guarantee about unseen data. A highly expressive representation can increase the risk of overfitting, depending on the model, regularization, and available data.</p>
+      <p>Our three transformations may miss the structure we need to separate the spiral classes. What if we designed a feature that captured the spiral pattern itself? A more expressive representation might make these observations easier to separate.</p>
+      <p>So why not keep adding increasingly complex features until every observation is classified correctly? Perfect accuracy on the observations we already have does not guarantee good predictions on new ones. The risk of overfitting depends on the data, feature representation, model complexity, and regularization.</p>
     </section>
-    {conclusionControl}
-    {showConclusion && <section className="explanation" aria-labelledby="explainer-conclusion-heading">
-      <h3 id="explainer-conclusion-heading" tabIndex={-1}>What Did We Learn?</h3>
+    <section className="explanation" aria-labelledby="explainer-conclusion-heading">
+      <h3 id="explainer-conclusion-heading">What Did We Learn?</h3>
       <ol>
         <li>A straight line cannot perfectly separate the original concentric classes.</li>
         <li>Feature lifting adds coordinates derived from the original inputs.</li>
-        <li>A linear classifier in the lifted space can create a nonlinear boundary in the original space.</li>
-        <li>The plane’s intersection with a curved feature surface explains the shape of that boundary.</li>
-        <li>The usefulness of a feature mapping depends on the dataset.</li>
+        <li>A flat plane separated the lifted concentric observations and projected back to a circular boundary.</li>
+        <li>Concentric circles and XOR benefited from different features.</li>
+        <li>A limited set of features may fall short on a different dataset, as we saw with the spirals.</li>
       </ol>
       <p className="chapter-handoff"><strong>The classifier can remain linear in the transformed feature space, even when its decision boundary is nonlinear in the original input space.</strong></p>
-    </section>}
+    </section>
   </>
 }

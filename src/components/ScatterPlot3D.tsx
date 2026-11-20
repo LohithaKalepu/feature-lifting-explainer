@@ -19,6 +19,8 @@ const fieldOfView = 44
 const markerSize: [number, number, number] = [0.065, 12, 8]
 const viewDirection = new Vector3(5, 7, 7).normalize()
 
+const tiltViewDirection = new Vector3(5, 11, 8).normalize()
+const classifierViewDirection = new Vector3(4, 4, 9).normalize()
 const bowlViewDirection = new Vector3(4, 12, 8).normalize()
 
 const cameraPresets = {
@@ -35,10 +37,12 @@ interface CameraSnapshot {
   preset?: { view: CameraPreset }
 }
 
-function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlView }: {
+function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlView, focusTilt, focusClassifier }: {
   controls: OrbitControlsRef
   savedCamera: MutableRefObject<CameraSnapshot | undefined>
   bowlView: boolean
+  focusTilt: boolean
+  focusClassifier: boolean
   radius: number
   minZ: number
   maxZ: number
@@ -53,7 +57,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
   // same geometry in view at the default zoom.
   const distance = 1.08 * boundingRadius / Math.sin(MathUtils.degToRad(fieldOfView / 2))
 
-  const direction = bowlView && (!preset || preset.view === 'Perspective')
+  const direction = focusClassifier ? classifierViewDirection : focusTilt ? tiltViewDirection : bowlView && (!preset || preset.view === 'Perspective')
     ? bowlViewDirection
     : preset ? cameraPresets[preset.view] : viewDirection
   let viewRadius = boundingRadius
@@ -61,14 +65,14 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
     viewRadius = radius
   } else if (bowlView && preset?.view === 'Side View') {
     viewRadius = Math.max(radius, halfHeight)
-  } else if (bowlView && preset?.view === 'Perspective') {
+  } else if (focusTilt || (bowlView && preset?.view === 'Perspective')) {
     const horizontalExtent = radius * Math.SQRT2
     const verticalExtent = halfHeight * Math.hypot(direction.x, direction.z) + horizontalExtent * direction.y
     viewRadius = Math.max(horizontalExtent, verticalExtent)
   }
 
   const zoom = camera instanceof OrthographicCamera
-    ? Math.max(1, viewportHeight) / ((bowlView ? 2.24 : 2.18) * viewRadius)
+    ? Math.max(1, viewportHeight) / ((bowlView || focusTilt ? 2.24 : 2.18) * viewRadius)
     : 1
   const framing = `${radius}:${minZ}:${maxZ}:${zoom}`
 
@@ -110,7 +114,7 @@ function PlotCamera({ controls, radius, minZ, maxZ, preset, savedCamera, bowlVie
   />
 }
 
-export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selectedId, onSelect, tiltedPlane, planeHeight, minimumPlaneHeight, maximumPlaneHeight, intersection, water, showCameraPresets = false, bowlView = false }: {
+export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selectedId, onSelect, tiltedPlane, planeHeight, minimumPlaneHeight, maximumPlaneHeight, intersection, water, showCameraPresets = false, bowlView = false, focusTilt = false, focusClassifier = false }: {
   points: readonly DataPoint3D[]
   radius?: number
   surface?: FeatureSurfaceData
@@ -122,6 +126,8 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
   water?: { height: number; radius: number | null }
   showCameraPresets?: boolean
   bowlView?: boolean
+  focusTilt?: boolean
+  focusClassifier?: boolean
   progress?: number
   selectedId?: string
   onSelect?: (id: string) => void
@@ -150,24 +156,25 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
       {nearViewport && <Canvas
         flat
         frameloop="demand"
-        orthographic={showCameraPresets}
-        camera={showCameraPresets ? undefined : { fov: fieldOfView }}
+        orthographic={showCameraPresets || focusTilt}
+        camera={showCameraPresets || focusTilt ? undefined : { fov: fieldOfView }}
+        gl={focusTilt ? { localClippingEnabled: true } : undefined}
         fallback={<p>WebGL is required for the interactive 3D view.</p>}
       >
         <color attach="background" args={[plotColors.background]} />
         <ambientLight intensity={1.1} />
         <directionalLight position={[4, 8, 3]} intensity={2.1} />
         <CoordinateAxes3D radius={radius} minZ={minZ} maxZ={maxZ} />
-        {surface && <FeatureSurface3D surface={surface} progress={progress} opacity={bowlView ? 0.43 : undefined} />}
-        {planeHeight !== undefined && <SeparatingPlane3D height={planeHeight} radius={radius} />}
-        {tiltedPlane && <TiltedPlane3D plane={tiltedPlane} radius={radius} />}
+        {surface && <FeatureSurface3D surface={surface} progress={progress} opacity={focusClassifier ? 0.14 : bowlView ? 0.43 : undefined} />}
+        {planeHeight !== undefined && <SeparatingPlane3D height={planeHeight} radius={radius} outlined={focusClassifier} />}
+        {tiltedPlane && <TiltedPlane3D plane={tiltedPlane} radius={radius} clipBelow={focusTilt ? minimumPlaneHeight : undefined} />}
         {water && water.radius !== null && water.radius > 0 &&
           <WaterSurface3D height={water.height} radius={water.radius} />}
-        {intersection && <IntersectionCurve3D points={intersection} lineWidth={bowlView ? 3.25 : undefined} />}
+        {intersection && <IntersectionCurve3D points={intersection} lineWidth={focusTilt ? 3.75 : focusClassifier || bowlView ? 3.25 : undefined} />}
         {points.map(point => {
           const selected = point.id === selectedId
           return <group key={point.id} position={toWorldPosition(observationAtProgress(point, progress))}>
-            <mesh renderOrder={2} scale={selected ? 1.5 : 1} onClick={onSelect && (event => {
+            <mesh renderOrder={2} scale={selected ? 1.5 : focusTilt || focusClassifier ? 1.6 : 1} onClick={onSelect && (event => {
               if (event.delta > 3) return
               event.stopPropagation()
               onSelect(point.id)
@@ -183,7 +190,7 @@ export function ScatterPlot3D({ points, radius = 3, surface, progress = 1, selec
           </group>
         })}
         <PlotCamera controls={controls} savedCamera={savedCamera} radius={radius} minZ={minZ} maxZ={maxZ}
-          preset={showCameraPresets ? preset : undefined} bowlView={bowlView} />
+          preset={showCameraPresets ? preset : undefined} bowlView={bowlView} focusTilt={focusTilt} focusClassifier={focusClassifier} />
       </Canvas>}
     </div>
     {showCameraPresets && <div className="camera-actions" role="group" aria-label="Camera presets">

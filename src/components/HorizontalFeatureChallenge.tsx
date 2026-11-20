@@ -1,4 +1,4 @@
-import { useId, useMemo, useState, type ReactNode } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { ScatterPlot2D } from './ScatterPlot2D'
 import { ScatterPlot3D } from './ScatterPlot3D'
 import type { DataPoint } from '../types'
@@ -9,24 +9,17 @@ const transformations = ['linear', 'interaction', 'radial'] as const
 const plotRadius = 3
 
 export function HorizontalFeatureChallenge({
-  dataset, datasetName, plotDescription, classLabels, renderExplanation, resettable = false, onSelectFeature, onHeightChange, onCheck,
+  dataset, datasetName, plotDescription, classLabels, resettable = false,
 }: {
   dataset: DataPoint[]
   datasetName: string
   plotDescription: string
   classLabels: readonly [string, string]
-  renderExplanation?: () => ReactNode
   resettable?: boolean
-  onSelectFeature?: () => void
-  onHeightChange?: () => void
-  onCheck?: () => void
 }) {
   const heightId = useId()
   const [transformId, setTransformId] = useState<(typeof transformations)[number]>('linear')
   const [height, setHeight] = useState(0)
-  const [feedback, setFeedback] = useState<'success' | 'retry'>()
-  const [attempted, setAttempted] = useState(false)
-  const [revealed, setRevealed] = useState(false)
   const transform = featureTransforms[transformId]
   const { minHeight, maxHeight } = useMemo(() => {
     const heights = transformations.flatMap(id => {
@@ -60,44 +53,23 @@ export function HorizontalFeatureChallenge({
       <div className="lifting-buttons">
         {transformations.map(id => <button key={id} type="button" aria-pressed={transformId === id}
           onClick={() => {
-            onSelectFeature?.()
             if (id === transformId) return
             setTransformId(id)
-            setFeedback(undefined)
           }}>{featureTransforms[id].label}</button>)}
       </div>
       <p className="feature-description">{transform.label} feature <strong>{transform.expression}</strong></p>
       <label htmlFor={heightId}>Plane height <strong>c = {height.toFixed(2)}</strong></label>
       <input id={heightId} type="range" min={minHeight} max={maxHeight} step={0.05} value={height}
-        onChange={event => {
-          onHeightChange?.()
-          setHeight(event.target.valueAsNumber)
-          setFeedback(undefined)
-        }} />
+        onChange={event => setHeight(event.target.valueAsNumber)} />
       <p aria-live="polite">Classification accuracy <strong>{(100 * accuracy).toFixed(1)}%</strong>
         {' '}({correct} of {total} correctly classified)</p>
       <p>The classifier predicts Class 1 at or above the plane and Class 0 below it.</p>
-      <div className="lifting-buttons">
+      {resettable && <div className="lifting-buttons">
         <button type="button" onClick={() => {
-          onCheck?.()
-          setAttempted(true)
-          setFeedback(accuracy === 1 ? 'success' : 'retry')
-        }}>Check My Solution</button>
-        {resettable && <button type="button" onClick={() => {
           setTransformId('linear')
           setHeight(0)
-          setFeedback(undefined)
-          setAttempted(false)
-          setRevealed(false)
-        }}>Reset</button>}
-        {renderExplanation && attempted && <button type="button" aria-expanded={revealed}
-          onClick={() => setRevealed(value => !value)}>{revealed ? 'Hide Explanation' : 'Reveal Explanation'}</button>}
-      </div>
-      <div role="status">
-        {feedback === 'success' && <p className="success-feedback">All {total} observations are correctly classified. The plane separates the two classes in this representation.</p>}
-        {feedback === 'retry' && <p>{correct} of {total} observations are correct. Try another height or compare a different feature transformation.</p>}
-      </div>
+        }}>Reset</button>
+      </div>}
     </fieldset>
-    {revealed && renderExplanation?.()}
   </>
 }

@@ -1,24 +1,13 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import App from './App'
-import { Chapter4 } from '../chapters/Chapter4'
-import { Chapter5 } from '../chapters/Chapter5'
-import { initialProgression, progressStory, type ProgressionAction } from './progression'
 
-function follow(...actions: ProgressionAction[]) {
-  return actions.reduce(progressStory, initialProgression)
-}
-
-const xorCheckpoint = ['select-xor-feature', 'check-xor', 'continue-to-limitations'] as const
-const noop = () => {}
-
-describe('story checkpoints', () => {
-  it('renders Chapters 1–4 initially and keeps Chapter 5 gated', () => {
+describe('continuous story', () => {
+  it('renders all five chapters initially without a chapter navigation bar', () => {
     const markup = renderToStaticMarkup(<App />)
     expect(markup).not.toContain('aria-label="Chapter progress"')
     expect(markup).not.toMatch(/href="#chapter-\d"/)
-    expect(markup.match(/id="chapter-\d"/g)).toEqual(['id="chapter-1"', 'id="chapter-2"', 'id="chapter-3"', 'id="chapter-4"'])
-    expect(initialProgression.conclusionUnlocked).toBe(false)
+    expect(markup.match(/id="chapter-\d"/g)).toEqual(['id="chapter-1"', 'id="chapter-2"', 'id="chapter-3"', 'id="chapter-4"', 'id="chapter-5"'])
   })
 
   it('follows the challenge with the explanation and Chapter 2 without a reveal action', () => {
@@ -36,47 +25,44 @@ describe('story checkpoints', () => {
     expect(markup).not.toContain('Add Another Dimension')
   })
 
-  it('requires an XOR selection followed by a check and only then allows Continue to Chapter 5', () => {
-    expect(follow('check-xor', 'select-xor-feature', 'continue-to-limitations').unlockedThrough).toBe(4)
-    const eligible = follow('select-xor-feature', 'check-xor')
-    expect(eligible.unlockedThrough).toBe(4)
-    expect(progressStory(eligible, 'continue-to-limitations')).toMatchObject({
-      unlockedThrough: 5, scrollRequest: { id: 'chapter-5' },
-    })
+  it('places Chapter 2’s feature and lifting controls before the plots', () => {
+    const markup = renderToStaticMarkup(<App />)
+    const chapter = markup.slice(markup.indexOf('id="chapter-2"'), markup.indexOf('id="chapter-3"'))
+    const selector = chapter.indexOf('Choose a feature')
+    const plots = chapter.indexOf('Original 2D dataset')
+    expect(selector).toBeGreaterThan(chapter.indexOf('From two coordinates to three'))
+    const lifting = chapter.indexOf('id="lifting-progress"')
+    expect(lifting).toBeGreaterThan(selector)
+    expect(plots).toBeGreaterThan(lifting)
+    expect(chapter.slice(selector, plots)).toContain('All points lie on <strong>z = 0</strong>')
+    expect(chapter).toMatch(/<button[^>]+aria-pressed="true">Original \(z = 0\)/)
   })
 
-  it('requires a spiral interaction followed by a check, then a separate conclusion reveal', () => {
-    expect(follow(...xorCheckpoint, 'check-spiral', 'try-spiral', 'reveal-conclusion')
-      .conclusionUnlocked).toBe(false)
-    const eligible = follow(...xorCheckpoint, 'try-spiral', 'check-spiral')
-    expect(eligible.conclusionUnlocked).toBe(false)
-    expect(progressStory(eligible, 'reveal-conclusion')).toMatchObject({
-      conclusionUnlocked: true, scrollRequest: { id: 'explainer-conclusion-heading' },
-    })
+  it('puts the XOR explanation and transition before Chapter 5 without progression buttons', () => {
+    const markup = renderToStaticMarkup(<App />)
+    const xor = markup.indexOf('Exercise 2 — The XOR Challenge')
+    const explanation = markup.indexOf('Why Does the Interaction Feature Work?')
+    const handoff = markup.indexOf('Different patterns require different transformations.')
+    const chapterFive = markup.indexOf('id="chapter-5"')
+    expect(explanation).toBeGreaterThan(xor)
+    expect(handoff).toBeGreaterThan(explanation)
+    expect(chapterFive).toBeGreaterThan(handoff)
+    expect(markup.slice(xor, chapterFive)).not.toMatch(/Check My Solution|Reveal Explanation|Continue to Limitations/)
   })
 
-  it('retains all unlocks while returning to earlier checkpoints', () => {
-    const completed = follow(...xorCheckpoint, 'try-spiral', 'check-spiral', 'reveal-conclusion')
-    const revisited = progressStory(completed, 'check-xor')
-    expect(revisited).toMatchObject({
-      unlockedThrough: 5, conclusionUnlocked: true, checkedXor: true, checkedSpiral: true,
-      scrollRequest: { id: 'explainer-conclusion-heading' },
-    })
-    expect(progressStory(revisited, 'select-xor-feature')).toBe(revisited)
-  })
-
-  it('shows Continue controls at eligibility and keeps the audit visible before the conclusion', () => {
-    const fourthProps = { onSelectFeature: noop, onCheck: noop }
-    expect(renderToStaticMarkup(<Chapter4 {...fourthProps} />)).not.toContain('Continue to Limitations')
-    expect(renderToStaticMarkup(<Chapter4 {...fourthProps} onContinue={noop} />)).toContain('Continue to Limitations')
-    const fifthProps = { onInteract: noop, onCheck: noop }
-    const locked = renderToStaticMarkup(<Chapter5 {...fifthProps} conclusionUnlocked={false} />)
-    expect(locked).toContain('Can Any Linear Plane Separate These Spirals?')
-    expect(locked).not.toContain('What Did We Learn?')
-    expect(locked).not.toContain('See What We Learned')
-    const eligible = renderToStaticMarkup(<Chapter5 {...fifthProps} conclusionUnlocked={false} onRevealConclusion={noop} />)
-    expect(eligible).toContain('See What We Learned')
-    expect(eligible).not.toContain('What Did We Learn?')
-    expect(renderToStaticMarkup(<Chapter5 {...fifthProps} conclusionUnlocked />)).toContain('What Did We Learn?')
+  it('renders the spiral investigation, results, and conclusion without progression controls', () => {
+    const markup = renderToStaticMarkup(<App />)
+    const chapter = markup.slice(markup.indexOf('id="chapter-5"'))
+    const horizontalLimits = chapter.indexOf('Reach 100%?')
+    const generalPlane = chapter.indexOf('But What If We Tilted the Plane?')
+    const expressivity = chapter.indexOf('Why Not Keep Adding More Features?')
+    const conclusion = chapter.indexOf('What Did We Learn?')
+    expect(chapter).toContain('What Happens When Our Transformations')
+    expect(chapter).toContain('>Reset</button>')
+    expect(chapter).not.toMatch(/Check My Solution|See What We Learned|Reveal Conclusion/)
+    expect(horizontalLimits).toBeGreaterThan(chapter.indexOf('Classification accuracy'))
+    expect(generalPlane).toBeGreaterThan(horizontalLimits)
+    expect(expressivity).toBeGreaterThan(generalPlane)
+    expect(conclusion).toBeGreaterThan(expressivity)
   })
 })

@@ -5,6 +5,7 @@ import { concentricDataset } from '../data/datasets'
 import { classificationSummary, horizontalPlaneScore } from '../math/featureClassifier'
 import { featureTransforms, sampleFeatureSurface, transformPoints } from '../math/featureTransforms'
 import { radialIntersectionAtHeight } from '../math/radialIntersection'
+import { LinearityComparison } from './LinearityComparison'
 import { WaterLevelAnalogy } from './WaterLevelAnalogy'
 
 const radius = 3
@@ -12,6 +13,17 @@ const minimumHeight = -0.5
 const radialHeight = featureTransforms.radial.height
 const points = transformPoints(concentricDataset, radialHeight)
 const surface = sampleFeatureSurface(radialHeight, radius)
+const classifierSurface = {
+  ...surface,
+  maxZ: radialHeight(radius, 0),
+  // Remap the square sample grid onto a disk and evaluate the same feature
+  // there. Radius 3 covers the data and the largest intersection, √7.
+  vertices: surface.vertices.map(({ x1, x2 }) => {
+    const u = x1 * Math.sqrt(1 - (x2 / radius) ** 2 / 2)
+    const v = x2 * Math.sqrt(1 - (x1 / radius) ** 2 / 2)
+    return { x1: u, x2: v, z: radialHeight(u, v) }
+  }),
+}
 
 export function Chapter3() {
   const [height, setHeight] = useState(0.4)
@@ -30,8 +42,8 @@ export function Chapter3() {
       </section>
       <section>
         <h3>Lifted dataset and separating plane</h3>
-        <ScatterPlot3D points={points} surface={surface} radius={radius} planeHeight={height}
-          minimumPlaneHeight={minimumHeight} intersection={intersection.points} bowlView />
+        <ScatterPlot3D points={points} surface={classifierSurface} radius={radius} planeHeight={height}
+          minimumPlaneHeight={minimumHeight} intersection={intersection.points} focusClassifier />
       </section>
     </div>
     <fieldset className="lifting-controls">
@@ -51,24 +63,17 @@ export function Chapter3() {
       <p>Separating plane <strong>z = c</strong></p>
       <p>At the intersection <strong>x₁² + x₂² = c</strong></p>
     </section>
-    <p className="chapter-handoff">Imagine the same intersection as the rim of a pool of water.</p>
-    <WaterLevelAnalogy intersection={intersection} surface={surface} plotRadius={radius}
-      minimumHeight={minimumHeight} onHeightChange={setHeight} />
+    <WaterLevelAnalogy intersection={intersection} onHeightChange={setHeight} />
     <section className="explanation" aria-labelledby="plane-math-heading">
       <h3 id="plane-math-heading">Why Is the Classifier Still Linear?</h3>
-      <h4>Above or Below the Plane?</h4>
-      <p>The classifier only needs to determine whether a transformed point lies above or below the horizontal plane.</p>
+      <LinearityComparison points={points} height={height} radius={boundaryRadius} />
+      <p>Both views show the boundary of the same classifier. In transformed space, the classifier simply asks whether a point’s height reaches the plane.</p>
       <ul>
-        <li>z ≥ c → Class 1 (outer)</li>
-        <li>z &lt; c → Class 0 (inner)</li>
+        <li>z ≥ c → Class 1</li>
+        <li>z &lt; c → Class 0</li>
       </ul>
-      <h4>Substitute the Feature Transformation</h4>
-      <p>Since z = x₁² + x₂², the rule becomes <strong>x₁² + x₂² − c ≥ 0 → Class 1</strong>. The squared terms give the boundary its curved shape in the original coordinates. The separating rule is still linear in the transformed coordinate z.</p>
-      <h4>General Linear Decision Function</h4>
-      <p><strong>f(x) = wᵀφ(x) + b</strong></p>
-      <p>Here x is the original input, φ(x) is the transformed feature vector, w contains the classifier weights, and b is the bias.</p>
-      <p>In this example, φ(x) = (x₁, x₂, x₁² + x₂²), w = (0, 0, 1), and b = −c. Substituting gives <strong>f(x) = x₁² + x₂² − c</strong>.</p>
-      <p>The classifier remains linear in the transformed feature space. The nonlinear boundary comes from the transformation of the inputs.</p>
+      <p>Because z = x₁² + x₂², the same rule in the original coordinates is <strong>x₁² + x₂² ≥ c</strong>. The squared inputs produce the curved boundary.</p>
+      <p>The formal decision function is <strong>f(x) = wᵀφ(x) + b</strong>, with φ(x) = (x₁, x₂, x₁² + x₂²), w = (0, 0, 1), and b = −c.</p>
     </section>
     <p className="chapter-handoff">Now that you've seen how a flat plane creates a curved boundary, can you apply the idea yourself?</p>
   </section>

@@ -178,3 +178,56 @@ node scripts/export_spiral_audit.ts | python scripts/audit_spiral_feasibility.py
 - Placed the height slider and tilt unlock directly under the plots. After unlocking, the same strip holds the three labeled sliders. Accuracy and circle geometry appear together before the explanation. Reset Camera remains with the 3D view.
 - Safari confirmed the height-only stage, the unlock action, the aligned horizontal slider strip, and the visible 2D boundary and 3D scene. Coordinate pointer input failed during the nonzero tilt check, so slider-driven changes and camera rotation were not visually reverified.
 - All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Tilt Challenge 3D framing
+
+- The old camera fit a sphere around the full height range from −19.8 to 32, including the lowest possible plane corner and the highest corners of the square surface. That framing left the observations and intersection small.
+- Added an opt-in, closer orthographic view for the Tilt Challenge. Its framing uses fixed bounds across the sliders, so changing plane coefficients does not reposition the camera. Other plots retain their existing camera options.
+- Sampled the same paraboloid over a circular display domain whose radius covers all observations and every supported intersection, with 0.1 units of clearance. The plane material clips only below z = −3.1, beneath the minimum intercept and every real intersection. Increased marker size and intersection stroke and reduced plane opacity. The canvas, controls, units, and classification equations are unchanged.
+- All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed. Safari showed the rounded upper part of the new bowl. The later capture was blank after Reset Camera, so the whole scene and orbit, zoom, and reset behavior were not visually verified end to end.
+
+## Tilt Challenge scoped toolbar
+
+- Moved the existing parameter sliders, stage unlock, and accuracy into one compact toolbar below the plots. Stage 1 and Stage 2 use the same desktop grid, and the graphs, camera controls, and plane state remain in place.
+- The toolbar can stick near the bottom only when a measured clearance below the plots and camera controls is available. A ResizeObserver measures the toolbar and an IntersectionObserver checks its clearance. When the plots fill the available view, the controls stay in flow so the toolbar cannot cover geometry. On narrow or short screens the toolbar stays in flow, and the sticky region ends before the explanatory text and XOR.
+- Safari verified the height-only stage, the three-slider strip after unlock, and that the toolbar was absent over the XOR activity. Continuous docking, slider-driven WebGL motion, and small-screen behavior were not visually verified. All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## XOR narrative flow
+
+- Removed the XOR check, explanation reveal, and Chapter 5 Continue actions. The XOR explanation now follows the live score, and Chapter 5 follows the existing handoff in the initial document. Feature selection and the height slider preserve their existing behavior.
+- Removed the obsolete XOR progression state. The shared challenge still provides Check My Solution and Reset for the spiral exercise, and its final conclusion checkpoint is unchanged. Chapter 4A's workspace and state were left intact.
+- Safari verified that switching to Interaction at c = 0 updated the score to 80/80 immediately, that the explanation and Chapter 5 were reachable by ordinary scrolling, and that returning to XOR preserved the selected feature and score.
+- All 67 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Introduction and Chapter 2 selector refinement
+
+- The opening now defines the explainer's linear-classifier scope and introduces the blue center cluster and orange ring as the same observations used in Chapters 1–3.
+- Chapter 2 connects the derived-feature examples to choosing a feature that helps distinguish classes. Its selector and current equation now appear before the plots. The default Original option explicitly states that all points lie at z = 0. Progress and playback remain below the plots.
+- Added a markup regression test for selector order and the default selection. All 68 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+- Safari confirmed the copy, control order, and selection of all three transformed features. Play entered its playing state, but progress stayed at zero in the captured frame. The browser session did not confirm nonzero scrubbing or completed playback.
+
+## Chapter 3 classifier visibility
+
+- The classifier camera previously fit the full square paraboloid up to z = 18, well above the observations. The classifier now samples the same feature over a radius-3 disk and uses a lower, closer perspective angle. The disk covers every observation and all supported real intersections, with equal axis units. The water analogy retains its original surface and camera.
+- Made the surface more transparent, enlarged the observation markers, and strengthened the purple plane perimeter and intersection stroke. The surface and plane do not write depth, and markers still depth-test against each other. The new visual settings are opt-in.
+- A numerical camera projection check kept the observation centers, plane corners, bowl rim, and applicable intersection samples inside the default frame at heights −0.50, 3.25, and 7.00. The corresponding scores were 60/100, 100/100, and 40/100. Safari confirmed 100/100 at 3.25 and the linked 2D circle, but its capture did not show the 3D scene and pointer automation failed on the subsequent slider checks.
+- All 68 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Chapter 3 illustrated explanations
+
+- Replaced the separate WebGL water workspace with a compact SVG interlude. The bowl profile follows the radial quadratic equation, and its perspective-style water ellipse uses the shared intersection radius. The water slider starts at zero while the classifier retains its negative range. A negative classifier height shows an empty bowl and a no-intersection message.
+- Added a compact 2D/3D comparison using the existing scatter plot and an SVG projection of the same lifted observations and plane. Both illustrations follow the existing shared height. The threshold intuition now precedes the weighted decision equation. The main classifier scene was left in place.
+- Safari displayed the bowl and confirmed changing water height from 3.25 to 3.50 updated both sliders and the radius to 1.871. The accessibility tree confirmed the two comparison headings precede the formal equation. All 68 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Tilt Challenge controls available immediately
+
+- Removed the tilt unlock and stage labels. The opening now explains why changing height changes the radius, while tilting shifts the center. The plane still starts at a = 0, b = 0, c = 1.
+- Enlarged the live accuracy percentage in the existing toolbar and retained the correct count and circle readouts. The plots, camera, equations, docking behavior, and XOR exercise are unchanged.
+- Safari confirmed all three sliders are present initially with the horizontal plane and a score of 66/100. This browser check did not exercise nonzero slider changes. All 68 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+
+## Chapter 5 investigation and conclusion
+
+- Reframed the spirals as an investigation. Removed Check My Solution, attempt feedback, and the final reveal action. The three mappings, plane slider, live score, camera controls, and Reset remain available.
+- Separated the horizontal-plane explanation from the saved general-plane results. The table still reads the original audit artifact, and the unit-margin formulation now appears in a secondary technical note. The feature-expressivity discussion and five-point recap are visible in the initial document.
+- Replaced tests for the retired checkpoints with a document-order regression check. All 66 tests passed, the production build passed with the existing bundle-size warning, and the diff check passed.
+- Safari confirmed all three feature choices, a live score change from 65/144 to 68/144 when moving the Linear plane from c = 0 to c = 2, and Reset returning to zero. The browser accessibility tree showed all three infeasible rows and the conclusion without a reveal action.
