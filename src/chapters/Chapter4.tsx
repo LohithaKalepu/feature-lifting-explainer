@@ -125,13 +125,16 @@ function TiltChallenge() {
       </fieldset>
     </div>
     <div className="tilt-plane-notes">
-      <p>The separating plane remains linear in the transformed feature space.</p>
       <p>Plane z = a·x₁ + b·x₂ + c, with (a, b, c) = ({plane.a.toFixed(2)}, {plane.b.toFixed(2)}, {plane.c.toFixed(2)}).</p>
       <p>Projected boundary (x₁ − a/2)² + (x₂ − b/2)² = c + (a² + b²)/4 = {radiusSquared.toFixed(3)}.</p>
       {boundaryRadius === null
         ? <p>The plane has no real intersection with the paraboloid at these settings.</p>
         : <p>Boundary center ({center.x.toFixed(3)}, {center.y.toFixed(3)}), radius {boundaryRadius.toFixed(3)}.
           {boundaryRadius === 0 && ' The intersection is a single point.'}</p>}
+      <h3>How Does the Tilted Plane Classify Points?</h3>
+      <p>The decision function <strong>f(x) = x₁² + x₂² − ax₁ − bx₂ − c</strong> subtracts the plane’s height from the point’s lifted height at the same (x₁, x₂). The result is a signed score rather than a class probability.</p>
+      <p>At or above the plane (<strong>f(x) ≥ 0</strong>), the classifier predicts Class 1 (outer). Below the plane (<strong>f(x) &lt; 0</strong>), it predicts Class 0 (inner). The equation <strong>f(x) = 0</strong> identifies the decision boundary.</p>
+      <p>In the lifted coordinates, the score is <strong>f(x) = wᵀφ(x) + b₀</strong>, where φ(x) = (x₁, x₂, x₁² + x₂²), w = (−a, −b, 1), and b₀ = −c. It is a weighted sum of the lifted features plus the classifier intercept b₀. The plane’s coefficient b controls tilt along x₂.</p>
     </div>
   </section>
 }
